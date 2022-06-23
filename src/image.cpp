@@ -222,7 +222,7 @@ Image::SaveBMP(const char *filename)
     int i, j, ipos;
     int bytesPerLine;
     unsigned char *line;
-	Vector3f*rgb = data;
+	Pixel *rgb = data;
     FILE *file;
     struct BMPHeader bmph;
 
@@ -277,9 +277,9 @@ Image::SaveBMP(const char *filename)
         for (j = 0; j < width; j++)
         {
             ipos = (width * i + j);
-            line[3*j] = ClampColorComponent(rgb[ipos][2]);
-            line[3*j+1] =ClampColorComponent( rgb[ipos][1]);
-            line[3*j+2] = ClampColorComponent( rgb[ipos][0]);
+            line[3*j] = ClampColorComponent(rgb[ipos].color[2]);
+            line[3*j+1] =ClampColorComponent( rgb[ipos].color[1]);
+            line[3*j+2] = ClampColorComponent( rgb[ipos].color[0]);
         }
         fwrite(line, bytesPerLine, 1, file);
     }

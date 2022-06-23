@@ -11,6 +11,7 @@ class Object3D;
 class Group;
 class Sphere;
 class Plane;
+class Disk;
 class Triangle;
 class Transform;
 class Mesh;
@@ -69,6 +70,7 @@ private:
     Group *parseGroup();
     Sphere *parseSphere();
     Plane *parsePlane();
+    Disk *parseDisk();
     Triangle *parseTriangle();
     Mesh *parseTriangleMesh();
     Transform *parseTransform();

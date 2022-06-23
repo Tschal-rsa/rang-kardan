@@ -5,6 +5,7 @@
 
 #include "scene_parser.hpp"
 #include "camera.hpp"
+#include "disk.hpp"
 #include "distribution.hpp"
 #include "light.hpp"
 #include "material.hpp"
@@ -293,6 +294,8 @@ Object3D *SceneParser::parseObject(char token[MAX_PARSER_TOKEN_LENGTH]) {
         answer = (Object3D *) parseSphere();
     } else if (!strcmp(token, "Plane")) {
         answer = (Object3D *) parsePlane();
+    } else if (!strcmp(token, "Disk")) {
+        answer = (Object3D *) parseDisk();
     } else if (!strcmp(token, "Triangle")) {
         answer = (Object3D *) parseTriangle();
     } else if (!strcmp(token, "TriangleMesh")) {
@@ -387,6 +390,26 @@ Plane *SceneParser::parsePlane() {
     assert (!strcmp(token, "}"));
     assert (current_material != nullptr);
     return new Plane(normal, offset, current_material);
+}
+
+
+Disk *SceneParser::parseDisk() {
+    char token[MAX_PARSER_TOKEN_LENGTH];
+    getToken(token);
+    assert (!strcmp(token, "{"));
+    getToken(token);
+    assert (!strcmp(token, "center"));
+    Vector3f center = readVector3f();
+    getToken(token);
+    assert (!strcmp(token, "normal"));
+    Vector3f normal = readVector3f();
+    getToken(token);
+    assert (!strcmp(token, "radius"));
+    float radius = readFloat();
+    getToken(token);
+    assert (!strcmp(token, "}"));
+    assert (current_material != nullptr);
+    return new Disk(center, normal, radius, current_material);
 }
 
 

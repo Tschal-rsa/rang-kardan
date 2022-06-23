@@ -4,6 +4,17 @@
 #include <cassert>
 #include <vecmath.h>
 
+typedef struct {
+    Vector3f color;
+    Vector3f hitPoint;
+    Vector3f accumulate;
+    Vector3f flux;
+    Vector3f phos;
+    Vector3f normal;
+    int numPhotons;
+    float squaredRadius = 1e-2;
+} Pixel;
+
 // Simple image class
 class Image {
 
@@ -12,7 +23,7 @@ public:
     Image(int w, int h) {
         width = w;
         height = h;
-        data = new Vector3f[width * height];
+        data = new Pixel[width * height];
     }
 
     ~Image() {
@@ -30,19 +41,26 @@ public:
     const Vector3f &GetPixel(int x, int y) const {
         assert(x >= 0 && x < width);
         assert(y >= 0 && y < height);
+        return data[y * width + x].color;
+    }
+
+    Pixel* operator() (int r) {
+        return data + r;
+    }
+    Pixel& operator() (int x, int y) {
         return data[y * width + x];
     }
 
     void SetAllPixels(const Vector3f &color) {
         for (int i = 0; i < width * height; ++i) {
-            data[i] = color;
+            data[i].color = color;
         }
     }
 
     void SetPixel(int x, int y, const Vector3f &color) {
         assert(x >= 0 && x < width);
         assert(y >= 0 && y < height);
-        data[y * width + x] = color;
+        data[y * width + x].color = color;
     }
 
     static Image *LoadPPM(const char *filename);
@@ -61,7 +79,7 @@ private:
 
     int width;
     int height;
-    Vector3f *data;
+    Pixel *data;
 
 };
 

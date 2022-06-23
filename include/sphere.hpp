@@ -42,8 +42,19 @@ public:
             return false;
         }
         Vector3f normal = (r.pointAtParameter(t) - center) / radius;
-        h.set(t, material, normal);
+        h.set(t, material, normal, material->getColor());
         return true;
+    }
+
+    Ray generateAverageRay() const override {
+        double x = Utils::randomEngine(-1, 1), y = Utils::randomEngine(-1, 1);
+        double r2 = Utils::square(x) + Utils::square(y);
+        while (r2 >= 1) {
+            x = Utils::randomEngine(-1, 1), y = Utils::randomEngine(-1, 1);
+            r2 = Utils::square(x) + Utils::square(y);
+        }
+        Vector3f dir(2 * x * sqrt(1 - r2), 2 * y * sqrt(1 - r2), 1 - 2 * r2);
+        return Ray(center + radius * dir, dir);
     }
 
 protected:

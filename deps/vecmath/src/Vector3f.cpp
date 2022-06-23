@@ -227,6 +227,13 @@ Vector3f& Vector3f::operator *= ( float f )
 	return *this;
 }
 
+Vector3f& Vector3f::operator *= ( const Vector3f& v ) {
+	m_elements[ 0 ] *= v.m_elements[ 0 ];
+	m_elements[ 1 ] *= v.m_elements[ 1 ];
+	m_elements[ 2 ] *= v.m_elements[ 2 ];
+	return *this;
+}
+
 // static
 float Vector3f::dot( const Vector3f& v0, const Vector3f& v1 )
 {

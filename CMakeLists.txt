@@ -16,16 +16,20 @@ SET(PA1_SOURCES
 SET(PA1_INCLUDES
         include/camera.hpp
         include/chroma.hpp
+        include/curve.hpp
+        include/disk.hpp
         include/distribution.hpp
         include/group.hpp
         include/hit.hpp
         include/image.hpp
+        include/kdtree.hpp
         include/light.hpp
         include/material.hpp
         include/mesh.hpp
         include/object3d.hpp
         include/plane.hpp
         include/ray.hpp
+        include/revsurface.hpp
         include/scene_parser.hpp
         include/sphere.hpp
         include/transform.hpp

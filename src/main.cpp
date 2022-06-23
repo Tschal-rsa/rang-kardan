@@ -21,7 +21,8 @@ int main(int argc, char *argv[]) {
     // the scene.  Write the color at the intersection to that
     // pixel in your output image.
     SceneParser sceneParser(inputFile.c_str());
-    Chroma chroma(&sceneParser);
+    Image image(sceneParser.getCamera()->getWidth(), sceneParser.getCamera()->getHeight());
+    Chroma chroma(sceneParser, image);
     // for (int x = 0; x < camera->getWidth(); ++x) {
     //     for (int y = 0; y < camera->getHeight(); ++y) {
     //         Ray camRay = camera->generateRay(Vector2f(x, y));
@@ -41,7 +42,8 @@ int main(int argc, char *argv[]) {
     //         }
     //     }
     // }
-    chroma.render();
+    chroma.render(10, 200000, 2);
+    // chroma.render();
     chroma.getImage()->SaveBMP(outputFile.c_str());
     cout << "Hello! Computer Graphics!" << endl;
     return 0;

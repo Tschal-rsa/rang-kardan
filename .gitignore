@@ -34,4 +34,5 @@
 # Paths
 bin/
 build/
+checkpoints/
 output/

@@ -64,6 +64,7 @@ public:
 	Vector3f& operator += ( const Vector3f& v );
 	Vector3f& operator -= ( const Vector3f& v );
     Vector3f& operator *= ( float f );
+	Vector3f& operator *= ( const Vector3f& v );
 
     static float dot( const Vector3f& v0, const Vector3f& v1 );
 	static Vector3f cross( const Vector3f& v0, const Vector3f& v1 );

@@ -4,6 +4,7 @@
 #include "ray.hpp"
 #include "hit.hpp"
 #include "material.hpp"
+#include "utils.hpp"
 
 // Base class for all 3d entities.
 class Object3D {
@@ -16,8 +17,16 @@ public:
         this->material = material;
     }
 
+    Material* getMaterial() {
+        return material;
+    }
+
     // Intersect Ray with this object. If hit, store information in hit structure.
     virtual bool intersect(const Ray &r, Hit &h, float tmin) = 0;
+
+    virtual Ray generateAverageRay() const {
+        return Ray(Vector3f::ZERO, Vector3f::ZERO);
+    } // [TODO] Change it to =0
 protected:
 
     Material *material;

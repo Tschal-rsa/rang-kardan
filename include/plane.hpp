@@ -32,7 +32,7 @@ public:
         if (t <= 0 || t > h.getT() || t < tmin) {
             return false;
         }
-        h.set(t, material, dotProduct < 0 ? normal : -normal);
+        h.set(t, material, dotProduct < 0 ? normal : -normal, material->getColor());
         return true;
     }
 

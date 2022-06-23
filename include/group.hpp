@@ -14,11 +14,11 @@ class Group : public Object3D {
 
 public:
 
-    Group(): objects(0) {
+    Group(): objects(0), illuminants(0) {
         
     }
 
-    explicit Group (int num_objects): objects(num_objects, nullptr) {
+    explicit Group (int num_objects): objects(num_objects, nullptr), illuminants(0) {
 
     }
 
@@ -37,15 +37,28 @@ public:
     void addObject(int index, Object3D *obj) {
         if (index >= 0 && index < objects.size()) {
             objects[index] = obj;
+            if (obj->getMaterial()->getPhos() != Vector3f::ZERO) {
+                illuminants.emplace_back(obj);
+            }
         }
+    }
+
+    Ray generateBeam(Vector3f &color, int idx) {
+        Object3D *illuminant = illuminants[idx];
+        color = illuminant->getMaterial()->getPhos();
+        return illuminant->generateAverageRay();
     }
 
     int getGroupSize() {
         return objects.size();
     }
 
+    int getIlluminantSize() {
+        return illuminants.size();
+    }
+
 private:
-    std::vector<Object3D*> objects;
+    std::vector<Object3D*> objects, illuminants;
 };
 
 #endif

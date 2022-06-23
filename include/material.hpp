@@ -24,6 +24,9 @@ public:
     virtual Vector3f getDiffuseColor() const {
         return color;
     } // [TODO]
+    virtual Vector3f getColor() const {
+        return color;
+    }
     virtual Vector3f getPhos() const {
         return phos;
     }

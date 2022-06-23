@@ -30,7 +30,7 @@ public:
 		if (t <= 0 || beta < 0 || beta > 1 || gamma < 0 || gamma > 1 || beta + gamma > 1 || t > hit.getT() || t < tmin) {
 			return false;
 		}
-		hit.set(t, material, Vector3f::dot(ray.getDirection(), normal) < 0 ? normal : -normal);
+		hit.set(t, material, normal, material->getColor());
 		return true;
 	}
 	Vector3f normal;

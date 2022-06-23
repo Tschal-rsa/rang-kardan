@@ -42,17 +42,22 @@ public:
         return normal;
     }
 
-    void set(float _t, Material *m, const Vector3f &n) {
+    const Vector3f &getColor() const {
+        return color;
+    }
+
+    void set(float _t, Material *m, const Vector3f &n, const Vector3f &c = Vector3f::ZERO) {
         t = _t;
         material = m;
         normal = n;
+        color = c;
     }
 
 private:
     float t;
     Material *material;
     Vector3f normal;
-
+    Vector3f color;
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Hit &h) {
