@@ -2,6 +2,7 @@
 #define CAMERA_H
 
 #include "ray.hpp"
+#include "utils.hpp"
 #include <vecmath.h>
 #include <float.h>
 #include <cmath>
@@ -20,6 +21,8 @@ public:
 
     // Generate rays for each screen-space coordinate
     virtual Ray generateRay(const Vector2f &point) = 0;
+    virtual Ray generateAverageRay(const Vector2f &point) = 0;
+    virtual Ray generateDistributedRay(const Vector2f &point) = 0;
     virtual ~Camera() = default;
 
     int getWidth() const { return width; }
@@ -42,21 +45,37 @@ class PerspectiveCamera : public Camera {
 
 public:
     PerspectiveCamera(const Vector3f &center, const Vector3f &direction,
-            const Vector3f &up, int imgW, int imgH, float angle) : Camera(center, direction, up, imgW, imgH) {
+            const Vector3f &up, int imgW, int imgH, float angle, float disToFocalPlane = 1, float apertureRadius = 0) : Camera(center, direction, up, imgW, imgH), disToFocalPlane(disToFocalPlane), apertureRadius(apertureRadius) {
         // angle is in radian.
-        halfLength = tan(angle / 2);
-        pixelX = halfLength / imgW * 2;
-        pixelY = halfLength / imgH * 2;
+        // halfLengthX = tan(angleX / 2);
+        // halfLengthY = tan(angleY / 2);
+        // pixelX = halfLengthX / imgW * 2;
+        // pixelY = halfLengthY / imgH * 2;
+        pixelX = pixelY = tan(angle / 2) / imgH * 2;
+        halfLengthX = imgW * pixelX / 2;
+        halfLengthY = imgH * pixelY / 2;
         rotate = Matrix3f(horizontal, -this->up, this->direction);
     }
 
     Ray generateRay(const Vector2f &point) override {
         // 
-        return Ray(center, rotate * Vector3f(point.x() * pixelX - halfLength, halfLength - point.y() * pixelY, 1).normalized());
+        float sampleX = Utils::randomEngine(-1, 1) * apertureRadius, sampleY = Utils::randomEngine(-1, 1) * apertureRadius;
+        return Ray(center + horizontal * sampleX - up * sampleY, rotate * Vector3f((point.x() * pixelX - halfLengthX) * disToFocalPlane - sampleX, (halfLengthY - point.y() * pixelY) * disToFocalPlane - sampleY, disToFocalPlane).normalized());
+    }
+
+    Ray generateAverageRay(const Vector2f &point) override {
+        return generateRay(Vector2f(point.x() + Utils::randomEngine(-1, 1), point.y() + Utils::randomEngine(-1, 1)));
+    }
+
+    Ray generateDistributedRay(const Vector2f &point) override {
+        float rx = Utils::randomEngine(0, 2), ry = Utils::randomEngine(0, 2);
+        float dx = rx < 1 ? (sqrt(rx) - 1) : (1 - sqrt(2 - rx)), dy = ry < 1 ? (sqrt(ry) - 1) : (1 - sqrt(2 - ry));
+        return generateRay(Vector2f(point.x() + dx, point.y() + dy));
     }
 
 protected:
-    float halfLength, pixelX, pixelY;
+    float halfLengthX, halfLengthY, pixelX, pixelY;
+    float apertureRadius, disToFocalPlane;
     Matrix3f rotate;
 };
 

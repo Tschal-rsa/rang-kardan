@@ -41,7 +41,7 @@ public:
         if (t > h.getT() || t < tmin) {
             return false;
         }
-        Vector3f normal = (squaredLengthToCenter > squaredRadius ? 1 : -1) * (r.pointAtParameter(t) - center) / radius;
+        Vector3f normal = (r.pointAtParameter(t) - center) / radius;
         h.set(t, material, normal);
         return true;
     }

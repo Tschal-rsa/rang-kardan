@@ -1,10 +1,12 @@
 PerspectiveCamera {
-    center 50 52 295.6
-    direction 0 -0.042612 -1
+    center 50 40.8 295.6
+    direction 0 0 -1
     up 0 1 0
     angle 30
-    width 1024
-    height 768
+    width 512
+    height 384
+    focus 217.6
+    aperture 0
 }
 
 Lights {
@@ -27,33 +29,32 @@ Materials {
     numMaterials 7
     Material { 
         color 0.75 0.25 0.25
-        type 1 0 0
+        prop Matte
     }
     Material { 
         color 0.25 0.25 0.75 
-        type 1 0 0
+        prop Matte
     }
     Material { 
         color 0.75 0.75 0.75 
-        type 1 0 0
+        prop Matte
     }
     Material { 
         color 0 0 0
-        type 1 0 0
+        prop Matte
     }
     Material {
-        color 1 1 1
-        type 0 1 0
+        color 0.999 0.999 0.999
+        prop Mirror
     }
     Material {
-        color 1 1 1
-        type 0 0 1
-        refr 1.5
+        color 0.999 0.999 0.999
+        prop Glass
     }
     Material {
         color 0 0 0
-        emission 30 30 30
-        type 1 0 0
+        emission 12 12 12
+        prop DiffLight
     }
 }
 
@@ -61,23 +62,23 @@ Group {
     numObjects 9
     MaterialIndex 0
     Plane {
-        normal 1 0.1 0
+        normal 1 0 0
         offset 1
     }
     MaterialIndex 1
     Plane {
-        normal -1 0.1 0
+        normal -1 0 0
         offset -99 
     }
     MaterialIndex 2
     Plane {
-        normal 0 0.1 1
+        normal 0 0 1
         offset 0
     }
     MaterialIndex 3
     Plane {
-        normal 0 0.1 -1
-        offset -170
+        normal 0 0 -1
+        offset -300
     }
     MaterialIndex 2
     Plane {
@@ -99,7 +100,6 @@ Group {
     center 73 16.5 78
         radius 16.5
     }
-
     MaterialIndex 6
     Sphere {
     center 50 681.33 81.6 

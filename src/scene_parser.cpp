@@ -5,6 +5,7 @@
 
 #include "scene_parser.hpp"
 #include "camera.hpp"
+#include "distribution.hpp"
 #include "light.hpp"
 #include "material.hpp"
 #include "object3d.hpp"
@@ -123,9 +124,18 @@ void SceneParser::parsePerspectiveCamera() {
     getToken(token);
     assert (!strcmp(token, "height"));
     int height = readInt();
+    float disToFocalPlane = 1, apertureRadius = 0;
     getToken(token);
+    if (!strcmp(token, "focus")) {
+        disToFocalPlane = readFloat();
+        getToken(token);
+    }
+    if (!strcmp(token, "aperture")) {
+        apertureRadius = readFloat();
+        getToken(token);
+    }
     assert (!strcmp(token, "}"));
-    camera = new PerspectiveCamera(center, direction, up, width, height, angle_radians);
+    camera = new PerspectiveCamera(center, direction, up, width, height, angle_radians, disToFocalPlane, apertureRadius);
 }
 
 void SceneParser::parseBackground() {
@@ -239,29 +249,36 @@ Material *SceneParser::parseMaterial() {
     char token[MAX_PARSER_TOKEN_LENGTH];
     char filename[MAX_PARSER_TOKEN_LENGTH];
     filename[0] = 0;
-    Vector3f diffuseColor(1, 1, 1), specularColor(0, 0, 0), emissionColor(0, 0, 0);
-    float shininess = 0;
+    // Vector3f diffuseColor(1, 1, 1), specularColor(0, 0, 0), emissionColor(0, 0, 0);
+    Vector3f color(1, 1, 1), phos(0, 0, 0);
+    char distribution[MAX_PARSER_TOKEN_LENGTH];
+    Properties prop = {0};
+    // float shininess = 0;
     getToken(token);
     assert (!strcmp(token, "{"));
     while (true) {
         getToken(token);
-        if (strcmp(token, "diffuseColor") == 0) {
-            diffuseColor = readVector3f();
-        } else if (strcmp(token, "specularColor") == 0) {
-            specularColor = readVector3f();
-        } else if (strcmp(token, "shininess") == 0) {
-            shininess = readFloat();
-        } else if (strcmp(token, "emissionColor") == 0) {
-            emissionColor = readVector3f();
+        if (strcmp(token, "color") == 0 || strcmp(token, "diffuseColor") == 0) {
+            color = readVector3f();
+        // } else if (strcmp(token, "specularColor") == 0) {
+        //     specularColor = readVector3f();
+        // } else if (strcmp(token, "shininess") == 0) {
+        //     shininess = readFloat();
+        } else if (strcmp(token, "emission") == 0) {
+            phos = readVector3f();
         } else if (strcmp(token, "texture") == 0) {
             // Optional: read in texture and draw it.
             getToken(filename);
+        } else if (strcmp(token, "prop") == 0) {
+            getToken(distribution);
+            prop = Distribution::getProperties(distribution);
         } else {
             assert (!strcmp(token, "}"));
             break;
         }
     }
-    auto *answer = new Material(diffuseColor, specularColor, emissionColor, shininess);
+    // auto *answer = new Material(diffuseColor, specularColor, emissionColor, shininess);
+    auto *answer = new Material(color, phos, prop);
     return answer;
 }
 

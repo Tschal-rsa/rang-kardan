@@ -15,6 +15,8 @@ SET(PA1_SOURCES
 
 SET(PA1_INCLUDES
         include/camera.hpp
+        include/chroma.hpp
+        include/distribution.hpp
         include/group.hpp
         include/hit.hpp
         include/image.hpp
@@ -28,6 +30,7 @@ SET(PA1_INCLUDES
         include/sphere.hpp
         include/transform.hpp
         include/triangle.hpp
+        include/utils.hpp
         )
 
 SET(CMAKE_CXX_STANDARD 11)
