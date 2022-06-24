@@ -30,6 +30,7 @@ public:
     }
     void destroy() {
         destroy(root);
+        root = nullptr;
     }
     void update(const Vector3f &position, const Vector3f &accumulate, const Vector3f &beamDirection) {
         update(root, position, accumulate, beamDirection);
@@ -39,6 +40,9 @@ public:
             destroy(root);
         }
         if (pixels) {
+            for (int i = 0; i < size; ++i) {
+                pixels[i] = nullptr;
+            }
             delete[] pixels;
         }
     }
