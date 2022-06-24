@@ -3,8 +3,8 @@ PerspectiveCamera {
     direction 0 0 -1
     up 0 1 0
     angle 30
-    width 1024
-    height 768
+    width 512
+    height 384
     focus 217.6
     aperture 0
 }
@@ -45,13 +45,13 @@ Materials {
     }
     Material {
         color 0.999 0.999 0.999
-        emission 12000 12000 12000
+        emission 18000 18000 18000
         prop DiffLight
     }
 }
 
 Group {
-    numObjects 9
+    numObjects 8
     MaterialIndex 0
     Plane {
         normal 1 0 0
@@ -82,15 +82,13 @@ Group {
         normal 0 -1 0
         offset -81.6
     }
-    MaterialIndex 4
-    Sphere {
-    center 27 16.5 47
-        radius 16.5 
-    }
     MaterialIndex 5
-    Sphere {
-    center 73 16.5 78
-        radius 16.5
+    Transform {
+        Translate 60 -10 78
+        Scale 200 200 200
+        TriangleMesh {
+            obj_file mesh/bunny_200.obj
+        }
     }
     MaterialIndex 6
     Disk {

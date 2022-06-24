@@ -13,8 +13,8 @@ public:
     Vector3f konta, makria;
     Pixel *pixel;
     KDTreeNode *lc, *rc;
-    float squaredRadius;
-    KDTreeNode(): konta(1e100), makria(-1e100), lc(nullptr), rc(nullptr), squaredRadius(0) {}
+    float maxSquaredRadius;
+    KDTreeNode(): konta(1e100), makria(-1e100), lc(nullptr), rc(nullptr), maxSquaredRadius(0) {}
 };
 
 class KDTree {
@@ -48,7 +48,7 @@ protected:
         for (int i = lo; i <= hi; ++i) {
             node->konta = Utils::min(node->konta, pixels[i]->hitPoint);
             node->makria = Utils::max(node->makria, pixels[i]->hitPoint);
-            node->squaredRadius = node->squaredRadius < pixels[i]->squaredRadius ? pixels[i]->squaredRadius : node->squaredRadius;
+            node->maxSquaredRadius = node->maxSquaredRadius < pixels[i]->squaredRadius ? pixels[i]->squaredRadius : node->maxSquaredRadius;
         }
         int mi = lo + hi >> 1;
         switch (dim) {
@@ -92,7 +92,7 @@ protected:
         // cerr << apoKonta.x() << "\t" << apoMakria.x() << endl;
         float squaredDistance = Utils::relu(apoKonta).squaredLength() + Utils::relu(apoMakria).squaredLength();
         // cerr << squaredDistance << endl;
-        if (squaredDistance > node->squaredRadius) {
+        if (squaredDistance > node->maxSquaredRadius) {
             return;
         }
         if ((position - node->pixel->hitPoint).squaredLength() <= node->pixel->squaredRadius) {
@@ -110,12 +110,12 @@ protected:
         if (node->rc) {
             update(node->rc, position, accumulate, beamDirection);
         }
-        node->squaredRadius = node->pixel->squaredRadius;
-        if (node->lc && node->squaredRadius < node->lc->pixel->squaredRadius) {
-            node->squaredRadius = node->lc->pixel->squaredRadius;
+        node->maxSquaredRadius = node->pixel->squaredRadius;
+        if (node->lc && node->maxSquaredRadius < node->lc->maxSquaredRadius) {
+            node->maxSquaredRadius = node->lc->maxSquaredRadius;
         }
-        if (node->rc && node->squaredRadius < node->rc->pixel->squaredRadius) {
-            node->squaredRadius = node->rc->pixel->squaredRadius;
+        if (node->rc && node->maxSquaredRadius < node->rc->maxSquaredRadius) {
+            node->maxSquaredRadius = node->rc->maxSquaredRadius;
         }
     }
     KDTreeNode *root;

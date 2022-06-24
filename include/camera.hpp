@@ -58,16 +58,18 @@ public:
     }
 
     Ray generateRay(const Vector2f &point) override {
-        // 
+        // add depth of field
         float sampleX = Utils::randomEngine(-1, 1) * apertureRadius, sampleY = Utils::randomEngine(-1, 1) * apertureRadius;
         return Ray(center + horizontal * sampleX - up * sampleY, rotate * Vector3f((point.x() * pixelX - halfLengthX) * disToFocalPlane - sampleX, (halfLengthY - point.y() * pixelY) * disToFocalPlane - sampleY, disToFocalPlane).normalized());
     }
 
     Ray generateAverageRay(const Vector2f &point) override {
+        // Add a (-1, 1) random interrupt to the ray.
         return generateRay(Vector2f(point.x() + Utils::randomEngine(-1, 1), point.y() + Utils::randomEngine(-1, 1)));
     }
 
     Ray generateDistributedRay(const Vector2f &point) override {
+        // Add a cubic-like distributed random interrupt to the ray.
         float rx = Utils::randomEngine(0, 2), ry = Utils::randomEngine(0, 2);
         float dx = rx < 1 ? (sqrt(rx) - 1) : (1 - sqrt(2 - rx)), dy = ry < 1 ? (sqrt(ry) - 1) : (1 - sqrt(2 - ry));
         return generateRay(Vector2f(point.x() + dx, point.y() + dy));

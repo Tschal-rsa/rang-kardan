@@ -37,7 +37,7 @@ public:
     void addObject(int index, Object3D *obj) {
         if (index >= 0 && index < objects.size()) {
             objects[index] = obj;
-            if (obj->getMaterial()->getPhos() != Vector3f::ZERO) {
+            if (obj->getMaterial() && obj->getMaterial()->getPhos() != Vector3f::ZERO) {
                 illuminants.emplace_back(obj);
             }
         }

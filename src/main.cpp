@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     //         }
     //     }
     // }
-    chroma.render(10, 200000, 2);
+    chroma.render(2500, 200000, 50);
     // chroma.render();
     chroma.getImage()->SaveBMP(outputFile.c_str());
     cout << "Hello! Computer Graphics!" << endl;

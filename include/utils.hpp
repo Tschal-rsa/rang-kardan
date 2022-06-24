@@ -46,14 +46,15 @@ public:
     static Vector3f generateVertical(const Vector3f &vec) {
         return vec.z() == 0 ? Vector3f::FORWARD : Vector3f(-vec.z() / vec.x(), 0, 1).normalized();
     }
-    static Vector3f sampleReflectedRay(Vector3f norm, double s = 1) {
+    static Vector3f sampleReflectedRay(Vector3f norm, float s = 1) {
+        // Sample two vectors (u, v) s.t. (u, v, norm) are vertical.
         Vector3f u = Vector3f::cross(Vector3f(1, 0, 0), norm);
         if (u.squaredLength() < 1e-6) u = Vector3f::cross(Vector3f(0, 1, 0), norm);
         u.normalize();
         Vector3f v = Vector3f::cross(norm, u);
         v.normalize();
-        double theta = randomEngine(0, 2 * M_PI);
-        double phi = asin(pow(randomEngine(), 1. / (s + 1)));
+        float theta = randomEngine(0, 2 * M_PI); // Sample an angle in the vertical plane.
+        float phi = asin(pow(randomEngine(), 1. / (s + 1))); // Sample an angle between norm and the plane.
         return (norm * cos(phi) + (u * cos(theta) + v * sin(theta)) * sin(phi)).normalized();
     }
 };

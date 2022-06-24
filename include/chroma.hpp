@@ -106,44 +106,43 @@ public:
             Vector3f reflectDirection = beam.getDirection() - 2 * dotProduct * hit.getNormal();
 
             if (hit.getMaterial()->getSpecular() > 0) {
-                // cerr << "Photon tracing Specular" << endl;
-                beam = Ray(hitPoint, reflectDirection);
+                beam.set(hitPoint, reflectDirection);
                 continue;
             }
 
             if (hit.getMaterial()->getDiffuse() > 0) {
-                // cerr << "Photon tracing Diffuse" << endl;
                 kdtree.update(hitPoint, accumulate, beam.getDirection());
                 Vector3f diffuseReflectDirection = Utils::sampleReflectedRay(hit.getNormal());
-                if (Vector3f::dot(diffuseReflectDirection, hit.getNormal()) < 0) {
-                    diffuseReflectDirection.negate();
-                }
+                // Absorb rate = 0.3
                 if (Utils::randomEngine() <= 0.7) {
-                    beam = Ray(hitPoint, diffuseReflectDirection);
+                    beam.set(hitPoint, diffuseReflectDirection);
                     continue;
                 }
                 return;
             }
 
             if (hit.getMaterial()->getRefract() > 0) {
-                // cerr << "Photon tracing Refraction" << endl;
                 float refr = into ? hit.getMaterial()->getRefr() : 1 / hit.getMaterial()->getRefr();
                 float incidentAngleCosine = -dotProduct, squaredRefractAngleCosine = 1 - (1 - Utils::square(incidentAngleCosine)) / Utils::square(refr);
                 if (squaredRefractAngleCosine > 0) {
                     float refractAngleCosine = sqrt(squaredRefractAngleCosine);
+                    // Schlick's approximation for Fresnel term.
                     float R0 = Utils::square((1 - refr) / (1 + refr));
                     float outerAngleCosine = into ? incidentAngleCosine : refractAngleCosine;
                     float R = R0 + (1 - R0) * pow(1 - outerAngleCosine, 5);
+                    // R represents the reflect rate.
                     if (Utils::randomEngine() <= R) {
-                        beam = Ray(hitPoint, reflectDirection);
+                        // Reflection
+                        beam.set(hitPoint, reflectDirection);
                         continue;
                     } else {
+                        // Refraction
                         Vector3f refractDirection = beam.getDirection() / refr + hit.getNormal() * (incidentAngleCosine / refr - refractAngleCosine);
-                        beam = Ray(hitPoint, refractDirection);
+                        beam.set(hitPoint, refractDirection);
                         continue;
                     }
-                } else {
-                    beam = Ray(hitPoint, reflectDirection);
+                } else { // Total reflection
+                    beam.set(hitPoint, reflectDirection);
                     continue;
                 }
             }
@@ -163,7 +162,7 @@ public:
             Vector3f reflectDirection = ray.getDirection() - 2 * dotProduct * hit.getNormal();
 
             if (hit.getMaterial()->getSpecular() > 0) {
-                ray = Ray(hitPoint, reflectDirection);
+                ray.set(hitPoint, reflectDirection);
                 continue;
             }
 
@@ -180,19 +179,23 @@ public:
                 float incidentAngleCosine = -dotProduct, squaredRefractAngleCosine = 1 - (1 - Utils::square(incidentAngleCosine)) / Utils::square(refr);
                 if (squaredRefractAngleCosine > 0) {
                     float refractAngleCosine = sqrt(squaredRefractAngleCosine);
+                    // Schlick's approximation for Fresnel term.
                     float R0 = Utils::square((1 - refr) / (1 + refr));
                     float outerAngleCosine = into ? incidentAngleCosine : refractAngleCosine;
                     float R = R0 + (1 - R0) * pow(1 - outerAngleCosine, 5);
+                    // R represents the reflect rate.
                     if (Utils::randomEngine() <= R) {
-                        ray = Ray(hitPoint, reflectDirection);
+                        // Reflection
+                        ray.set(hitPoint, reflectDirection);
                         continue;
                     } else {
+                        // Refraction
                         Vector3f refractDirection = ray.getDirection() / refr + hit.getNormal() * (incidentAngleCosine / refr - refractAngleCosine);
-                        ray = Ray(hitPoint, refractDirection);
+                        ray.set(hitPoint, refractDirection);
                         continue;
                     }
-                } else {
-                    ray = Ray(hitPoint, reflectDirection);
+                } else { // Total reflection
+                    ray.set(hitPoint, reflectDirection);
                     continue;
                 }
             }
@@ -202,21 +205,21 @@ public:
         for (int x = 0; x < image.Width(); ++x) {
             for (int y = 0; y < image.Height(); ++y) {
                 Pixel &pixel = image(x, y);
-                // cerr << pixel.flux.x() << "\t" << pixel.squaredRadius << endl;
                 Vector3f color = (pixel.flux / (M_PI * pixel.squaredRadius * numPhotons) + pixel.phos) / epoch;
-                // cerr << color.x() << "\t" << color.y() << "\t" << color.z() << endl;
                 pixel.color = Utils::clamp(Utils::gammaCorrect(color));
             }
         }
     }
     Ray generateBeam(Vector3f &color) {
         static int counter = 0;
+        // Select an illuminant to generate a beam.
         counter = (counter + 1) % baseGroup->getIlluminantSize();
         return baseGroup->generateBeam(color, counter);
     }
     void render(int epochs, int numPhotons, int checkpoint) {
         for (int epoch = 1; epoch <= epochs; ++epoch) {
             fprintf(stderr, "Round %d/%d\n", epoch, epochs);
+            // Ray tracing pass
 #pragma omp parallel for schedule(dynamic, 1)
             for (int x = 0; x < image.Width(); ++x) {
                 for (int y = 0; y < image.Height(); ++y) {
@@ -226,6 +229,7 @@ public:
                     rayTrace(pixel, ray, accumulate);
                 }
             }
+            // Photon tracing pass
             kdtree.construct();
 #pragma omp parallel for schedule(dynamic, 1)
             for (int i = 0; i < numPhotons; ++i) {
@@ -234,6 +238,7 @@ public:
                 photonTrace(beam, color);
             }
             kdtree.destroy();
+            // Save checkpoint
             if (epoch % checkpoint == 0) {
                 generateImage(epoch, numPhotons);
                 char filename[100];

@@ -33,6 +33,11 @@ public:
         return origin + direction * t;
     }
 
+    void set(const Vector3f &o, const Vector3f &d) {
+        origin = o;
+        direction = d;
+    }
+
 private:
 
     Vector3f origin;
