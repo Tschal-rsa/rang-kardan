@@ -45,7 +45,7 @@ Materials {
     }
     Material {
         color 0.999 0.999 0.999
-        emission 12000 12000 12000
+        emission 12 12 12
         prop DiffLight
     }
 }

@@ -14,17 +14,11 @@ class Group : public Object3D {
 
 public:
 
-    Group(): objects(0), illuminants(0) {
-        
-    }
+    Group(): objects(0), illuminants(0), strongPhos(1000) {}
 
-    explicit Group (int num_objects): objects(num_objects, nullptr), illuminants(0) {
+    explicit Group (int num_objects, float sp = 1000): objects(num_objects, nullptr), illuminants(0), strongPhos(sp) {}
 
-    }
-
-    ~Group() override {
-
-    }
+    ~Group() override {}
 
     bool intersect(const Ray &r, Hit &h, float tmin) override {
         bool groupIntersect = false;
@@ -45,7 +39,7 @@ public:
 
     Ray generateBeam(Vector3f &color, int idx) {
         Object3D *illuminant = illuminants[idx];
-        color = illuminant->getMaterial()->getPhos();
+        color = illuminant->getMaterial()->getPhos() * strongPhos;
         return illuminant->generateAverageRay();
     }
 
@@ -59,6 +53,7 @@ public:
 
 private:
     std::vector<Object3D*> objects, illuminants;
+    float strongPhos;
 };
 
 #endif
