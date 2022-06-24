@@ -40,7 +40,7 @@ public:
     Ray generateBeam(Vector3f &color, int idx) {
         Object3D *illuminant = illuminants[idx];
         color = illuminant->getMaterial()->getPhos() * strongPhos;
-        return illuminant->generateAverageRay();
+        return illuminant->generateBeam();
     }
 
     int getGroupSize() {

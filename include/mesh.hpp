@@ -2,8 +2,10 @@
 #define MESH_H
 
 #include <vector>
+#include "bsp.hpp"
 #include "object3d.hpp"
 #include "triangle.hpp"
+#include "utils.hpp"
 #include "Vector2f.h"
 #include "Vector3f.h"
 
@@ -14,23 +16,20 @@ public:
     Mesh(const char *filename, Material *m);
 
     struct TriangleIndex {
-        TriangleIndex() {
-            x[0] = 0; x[1] = 0; x[2] = 0;
+        TriangleIndex(int r = -1) {
+            x[0] = r; x[1] = r; x[2] = r;
         }
         int &operator[](const int i) { return x[i]; }
         // By Computer Graphics convention, counterclockwise winding is front face
         int x[3]{};
     };
 
-    std::vector<Vector3f> v;
-    std::vector<TriangleIndex> t;
-    std::vector<Vector3f> n;
     bool intersect(const Ray &r, Hit &h, float tmin) override;
 
 private:
-
+    std::vector<Triangle *> patches;
+    BSP tree;
     // Normal can be used for light estimation
-    void computeNormal();
 };
 
 #endif

@@ -77,7 +77,7 @@ public:
 
 protected:
     float halfLengthX, halfLengthY, pixelX, pixelY;
-    float apertureRadius, disToFocalPlane;
+    float disToFocalPlane, apertureRadius;
     Matrix3f rotate;
 };
 

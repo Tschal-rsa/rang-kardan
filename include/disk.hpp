@@ -26,7 +26,7 @@ public:
         h.set(t, material, dotProduct < 0 ? normal : -normal, material->getColor());
         return true;
     }
-    Ray generateAverageRay() const override {
+    Ray generateBeam() const override {
         Vector3f vertical(Utils::generateVertical(normal));
         float theta = Utils::randomEngine(0, 2 * M_PI);
         Vector3f rotated(vertical * cos(theta) + Vector3f::cross(normal, vertical * sin(theta)) + Vector3f::dot(normal, vertical) * normal * (1 - cos(theta)));

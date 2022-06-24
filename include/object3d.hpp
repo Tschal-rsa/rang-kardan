@@ -24,7 +24,7 @@ public:
     // Intersect Ray with this object. If hit, store information in hit structure.
     virtual bool intersect(const Ray &r, Hit &h, float tmin) = 0;
 
-    virtual Ray generateAverageRay() const {
+    virtual Ray generateBeam() const {
         return Ray(Vector3f::ZERO, Vector3f::ZERO);
     } // [TODO] Change it to =0
 protected:

@@ -46,9 +46,9 @@ public:
         return true;
     }
 
-    Ray generateAverageRay() const override {
-        double x = Utils::randomEngine(-1, 1), y = Utils::randomEngine(-1, 1);
-        double r2 = Utils::square(x) + Utils::square(y);
+    Ray generateBeam() const override {
+        float x = Utils::randomEngine(-1, 1), y = Utils::randomEngine(-1, 1);
+        float r2 = Utils::square(x) + Utils::square(y);
         while (r2 >= 1) {
             x = Utils::randomEngine(-1, 1), y = Utils::randomEngine(-1, 1);
             r2 = Utils::square(x) + Utils::square(y);
