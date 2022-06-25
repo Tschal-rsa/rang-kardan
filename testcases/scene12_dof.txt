@@ -1,0 +1,118 @@
+PerspectiveCamera {
+    center 50 40.8 295.6
+    direction 0 0 -1
+    up 0 1 0
+    angle 30
+    width 1024
+    height 768
+    focus 232.35
+    aperture 6
+}
+
+Lights {
+    numLights 0
+}
+
+Background {
+    color 0 0 0 
+}
+
+Materials {
+    numMaterials 7
+    Material { 
+        color 0.75 0.25 0.25
+        prop Matte
+    }
+    Material { 
+        color 0.25 0.25 0.75 
+        prop Matte
+    }
+    Material { 
+        color 0.75 0.75 0.75 
+        prop Matte
+    }
+    Material { 
+        color 0 0 0
+        prop Matte
+    }
+    Material {
+        color 0.999 0.999 0.999
+        prop Mirror
+    }
+    Material {
+        color 0.999 0.999 0.999
+        prop Matte
+        texture texture/world_nocloud.jpg
+    }
+    Material {
+        color 0.999 0.999 0.999
+        emission 12 12 12
+        prop DiffLight
+    }
+}
+
+Group {
+    numObjects 10
+    MaterialIndex 0
+    Plane {
+        normal 1 0 0
+        offset 1
+    }
+    MaterialIndex 1
+    Plane {
+        normal -1 0 0
+        offset -99 
+    }
+    MaterialIndex 2
+    Plane {
+        normal 0 0 1
+        offset 0
+    }
+    MaterialIndex 3
+    Plane {
+        normal 0 0 -1
+        offset -300
+    }
+    MaterialIndex 2
+    Plane {
+        normal 0 1 0
+        offset 0
+    }
+    MaterialIndex 2
+    Plane {
+        normal 0 -1 0
+        offset -81.6
+    }
+    MaterialIndex 5
+    Transform {
+        Translate 27 16.5 16.5
+        YRotate 90
+        Sphere {
+        center 0 0 0
+            radius 16.5
+        }
+    }
+    MaterialIndex 5
+    Transform {
+        Translate 50 16.5 63.25
+        Sphere {
+        center 0 0 0
+            radius 16.5
+        }
+    }
+    MaterialIndex 5
+    Transform {
+        Translate 73 16.5 110
+        YRotate -90
+        Sphere {
+        center 0 0 0
+            radius 16.5
+        }
+    }
+    MaterialIndex 6
+    Disk {
+    center 50 81.5999 81.6 
+    normal 0 -1 0
+        radius 20
+    }
+}

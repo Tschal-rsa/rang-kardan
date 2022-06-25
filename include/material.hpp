@@ -7,6 +7,7 @@
 #include "ray.hpp"
 #include "hit.hpp"
 #include "distribution.hpp"
+#include "texture.hpp"
 #include <iostream>
 
 // TODO: Implement Shade function that computes Phong introduced in class.
@@ -17,15 +18,21 @@ public:
     //         diffuseColor(d_color), specularColor(s_color), emissionColor(e_color), shininess(s) {
 
     // }
-    explicit Material(const Vector3f &color, const Vector3f &phos, const Properties &prop): color(color), phos(phos), prop(prop) {}
+    explicit Material(const Vector3f &color, const Vector3f &phos, const Properties &prop, Texture *texture = nullptr): color(color), phos(phos), prop(prop), texture(texture) {}
 
     virtual ~Material() = default;
 
     virtual Vector3f getDiffuseColor() const {
         return color;
     } // [TODO]
+    virtual bool hasTexture() {
+        return texture != nullptr;
+    }
     virtual Vector3f getColor() const {
         return color;
+    }
+    virtual Vector3f getColor(float u, float v) {
+        return texture->getColor(u, v);
     }
     virtual Vector3f getPhos() const {
         return phos;
@@ -62,6 +69,7 @@ protected:
     // float shininess;
     Vector3f color, phos;
     Properties prop;
+    Texture *texture;
 };
 
 

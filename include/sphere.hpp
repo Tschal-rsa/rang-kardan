@@ -42,7 +42,13 @@ public:
             return false;
         }
         Vector3f normal = (r.pointAtParameter(t) - center) / radius;
-        h.set(t, material, normal, material->getColor());
+        if (material->hasTexture()) {
+            float u = atan2(normal.x(), normal.z()) / (2 * M_PI) + 0.5;
+            float v = -asin(normal.y()) / M_PI + 0.5;
+            h.set(t, material, normal, material->getColor(u, v));
+        } else {
+            h.set(t, material, normal, material->getColor());
+        }
         return true;
     }
 

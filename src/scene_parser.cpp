@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <cmath>
 
+#define STB_IMAGE_IMPLEMENTATION
+
 #include "scene_parser.hpp"
 #include "camera.hpp"
 #include "disk.hpp"
@@ -13,7 +15,9 @@
 #include "group.hpp"
 #include "mesh.hpp"
 #include "sphere.hpp"
+#include "stb_image.h"
 #include "plane.hpp"
+#include "texture.hpp"
 #include "triangle.hpp"
 #include "transform.hpp"
 
@@ -252,6 +256,7 @@ Material *SceneParser::parseMaterial() {
     filename[0] = 0;
     // Vector3f diffuseColor(1, 1, 1), specularColor(0, 0, 0), emissionColor(0, 0, 0);
     Vector3f color(1, 1, 1), phos(0, 0, 0);
+    Texture *texture = nullptr;
     char distribution[MAX_PARSER_TOKEN_LENGTH];
     Properties prop = {0};
     // float shininess = 0;
@@ -270,6 +275,9 @@ Material *SceneParser::parseMaterial() {
         } else if (strcmp(token, "texture") == 0) {
             // Optional: read in texture and draw it.
             getToken(filename);
+            int width, height, channel;
+            unsigned char *img = stbi_load(filename, &width, &height, &channel, 0);
+            texture = new Texture(width, height, channel, img);
         } else if (strcmp(token, "prop") == 0) {
             getToken(distribution);
             prop = Distribution::getProperties(distribution);
@@ -279,7 +287,7 @@ Material *SceneParser::parseMaterial() {
         }
     }
     // auto *answer = new Material(diffuseColor, specularColor, emissionColor, shininess);
-    auto *answer = new Material(color, phos, prop);
+    auto *answer = new Material(color, phos, prop, texture);
     return answer;
 }
 
