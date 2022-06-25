@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     SceneParser sceneParser(inputFile.c_str());
     Image image(sceneParser.getCamera()->getWidth(), sceneParser.getCamera()->getHeight());
     Chroma chroma(sceneParser, image);
-    chroma.render(2, 200000, 25);
+    chroma.render(2, 2000000, 1);
     // chroma.render();
     image.SaveBMP(outputFile.c_str());
     cout << "Hello! Computer Graphics!" << endl;

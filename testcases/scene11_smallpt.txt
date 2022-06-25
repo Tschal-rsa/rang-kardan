@@ -51,7 +51,7 @@ Materials {
 }
 
 Group {
-    numObjects 8
+    numObjects 9
     MaterialIndex 0
     Plane {
         normal 1 0 0
@@ -84,11 +84,18 @@ Group {
     }
     MaterialIndex 5
     Transform {
-        Translate 60 -10 78
-        Scale 200 200 200
+        Translate 27 30 78
+        Scale 12 12 12
+        XRotate 45
+        YRotate 45
         TriangleMesh {
-            obj_file mesh/bunny_200.obj
+            obj_file mesh/cube.obj
         }
+    }
+    MaterialIndex 5
+    Sphere {
+    center 73 30 78
+        radius 16.5
     }
     MaterialIndex 6
     Disk {

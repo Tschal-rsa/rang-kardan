@@ -22,19 +22,18 @@ using namespace std;
 
 class Chroma {
 public:
-    Chroma(SceneParser &sceneParser, Image &image): kdtree(image), camera(sceneParser.getCamera()), backgroundColor(sceneParser.getBackgroundColor()), baseGroup(sceneParser.getGroup()), image(image), threshold(10), tmin(1e-3) {}
+    Chroma(SceneParser &sceneParser, Image &image): kdtree(image), camera(sceneParser.getCamera()), backgroundColor(sceneParser.getBackgroundColor()), baseGroup(sceneParser.getGroup()), image(image), threshold(20), tmin(1e-3) {}
     Vector3f radiance(const Ray &r, int depth)
     {
         // float t;   // distance to intersection
         // int id = 0; // id of intersected object
         Hit hit;
-        if (!baseGroup->intersect(r, hit, 1e-3))
+        if (!baseGroup->intersect(r, hit, 1e-2))
             return Vector3f::ZERO;                // if miss, return black
         Material *material = hit.getMaterial();
         // const Sphere &obj = spheres[id]; // the hit object
         Vector3f x = r.pointAtParameter(hit.getT()), n = hit.getNormal(), nl = Vector3f::dot(n, r.getDirection()) < 0 ? n : -n, f = material->getDiffuseColor();
-        float p = f.x() > f.y() && f.x() > f.z() ? f.x() : f.y() > f.z() ? f.y()
-                                                            : f.z(); // max refl
+        float p = Utils::max(f); // max refl
         if (++depth > 5) {
             if (Utils::randomEngine() < p)
                 f = f * (1 / p);
@@ -64,7 +63,7 @@ public:
                                         : radiance(reflRay, depth) * Re + radiance(Ray(x, tdir), depth) * Tr);
     }
     void render() {
-        int w = camera->getWidth(), h = camera->getHeight(), samps = 50; // # samples
+        int w = camera->getWidth(), h = camera->getHeight(), samps = 10; // # samples
         Ray cam(Vector3f(50, 40.8, 295.6), Vector3f(0, 0, -1).normalized());        // cam pos, dir
         Vector3f cx = Vector3f(w * .5135 / h, 0, 0), cy = Vector3f::cross(cx, cam.getDirection()).normalized() * .5135, r, *c = new Vector3f[w * h];
 #pragma omp parallel for schedule(dynamic, 1) private(r) // OpenMP
@@ -95,55 +94,61 @@ public:
     }
     void photonTrace(Ray beam, Vector3f accumulate) {
         for (int depth = 0; depth < threshold; ++depth) {
+            if (depth > 5) {
+                float maxAccumulate = Utils::max(accumulate);
+                if (Utils::randomEngine() < maxAccumulate) {
+                    accumulate *= (1 / maxAccumulate);
+                } else {
+                    return;
+                }
+            }
             Hit hit;
             if (!baseGroup->intersect(beam, hit, tmin)) {
                 return;
             }
             accumulate *= hit.getColor();
-            Vector3f hitPoint = beam.pointAtParameter(hit.getT());
             float dotProduct = Vector3f::dot(beam.getDirection(), hit.getNormal());
             bool into = dotProduct < 0;
+            Vector3f hitPoint = beam.pointAtParameter(hit.getT());
+
+            float erabu = Utils::randomEngine();
+            float genkai = hit.getMaterial()->getDiffuse();
+            if (erabu < genkai) {
+                kdtree.update(hitPoint, accumulate, beam.getDirection());
+                Vector3f diffuseReflectDirection = Utils::sampleReflectedRay((into ? 1 : -1) * hit.getNormal());
+                beam.set(hitPoint, diffuseReflectDirection);
+                continue;
+            }
+
             Vector3f reflectDirection = beam.getDirection() - 2 * dotProduct * hit.getNormal();
 
-            if (hit.getMaterial()->getSpecular() > 0) {
+            genkai += hit.getMaterial()->getSpecular();
+            if (erabu < genkai) {
                 beam.set(hitPoint, reflectDirection);
                 continue;
             }
 
-            if (hit.getMaterial()->getDiffuse() > 0) {
-                kdtree.update(hitPoint, accumulate, beam.getDirection());
-                Vector3f diffuseReflectDirection = Utils::sampleReflectedRay(hit.getNormal());
-                // Absorb rate = 0.3
-                if (Utils::randomEngine() <= 0.7) {
-                    beam.set(hitPoint, diffuseReflectDirection);
-                    continue;
-                }
-                return;
-            }
-
-            if (hit.getMaterial()->getRefract() > 0) {
+            genkai += hit.getMaterial()->getRefract();
+            if (erabu < genkai) {
                 float refr = into ? hit.getMaterial()->getRefr() : 1 / hit.getMaterial()->getRefr();
-                float incidentAngleCosine = -dotProduct, squaredRefractAngleCosine = 1 - (1 - Utils::square(incidentAngleCosine)) / Utils::square(refr);
+                float incidentAngleCosine = into ? -dotProduct : dotProduct, squaredRefractAngleCosine = 1 - (1 - Utils::square(incidentAngleCosine)) / Utils::square(refr);
                 if (squaredRefractAngleCosine > 0) {
                     float refractAngleCosine = sqrt(squaredRefractAngleCosine);
                     // Schlick's approximation for Fresnel term.
-                    float R0 = Utils::square((1 - refr) / (1 + refr));
+                    float R0 = Utils::square((refr - 1) / (refr + 1));
                     float outerAngleCosine = into ? incidentAngleCosine : refractAngleCosine;
                     float R = R0 + (1 - R0) * pow(1 - outerAngleCosine, 5);
                     // R represents the reflect rate.
                     if (Utils::randomEngine() <= R) {
                         // Reflection
                         beam.set(hitPoint, reflectDirection);
-                        continue;
                     } else {
                         // Refraction
-                        Vector3f refractDirection = beam.getDirection() / refr + hit.getNormal() * (incidentAngleCosine / refr - refractAngleCosine);
+                        Vector3f refractDirection = (beam.getDirection() / refr + hit.getNormal() * ((into ? 1 : -1) * (incidentAngleCosine / refr - refractAngleCosine))).normalized();
                         beam.set(hitPoint, refractDirection);
-                        continue;
                     }
                 } else { // Total reflection
                     beam.set(hitPoint, reflectDirection);
-                    continue;
                 }
             }
         }
@@ -155,18 +160,11 @@ public:
                 pixel.phos += pixel.accumulate * backgroundColor;
                 return;
             }
-            accumulate *= hit.getColor();
             Vector3f hitPoint = ray.pointAtParameter(hit.getT());
-            float dotProduct = Vector3f::dot(ray.getDirection(), hit.getNormal());
-            bool into = dotProduct < 0;
-            Vector3f reflectDirection = ray.getDirection() - 2 * dotProduct * hit.getNormal();
 
-            if (hit.getMaterial()->getSpecular() > 0) {
-                ray.set(hitPoint, reflectDirection);
-                continue;
-            }
-
-            if (hit.getMaterial()->getDiffuse() > 0) {
+            float erabu = Utils::randomEngine();
+            float genkai = hit.getMaterial()->getDiffuse();
+            if (erabu < genkai) {
                 pixel.hitPoint = hitPoint;
                 pixel.accumulate = accumulate;
                 pixel.phos += Utils::clamp(accumulate * hit.getMaterial()->getPhos());
@@ -174,29 +172,38 @@ public:
                 return;
             }
 
-            if (hit.getMaterial()->getRefract() > 0) {
+            float dotProduct = Vector3f::dot(ray.getDirection(), hit.getNormal());
+            Vector3f reflectDirection = ray.getDirection() - 2 * dotProduct * hit.getNormal();
+
+            accumulate *= hit.getColor();
+            genkai += hit.getMaterial()->getSpecular();
+            if (erabu < genkai) {
+                ray.set(hitPoint, reflectDirection);
+                continue;
+            }
+
+            genkai += hit.getMaterial()->getRefract();
+            if (erabu < genkai) {
+                bool into = dotProduct < 0;
                 float refr = into ? hit.getMaterial()->getRefr() : 1 / hit.getMaterial()->getRefr();
-                float incidentAngleCosine = -dotProduct, squaredRefractAngleCosine = 1 - (1 - Utils::square(incidentAngleCosine)) / Utils::square(refr);
+                float incidentAngleCosine = into ? -dotProduct : dotProduct, squaredRefractAngleCosine = 1 - (1 - Utils::square(incidentAngleCosine)) / Utils::square(refr);
                 if (squaredRefractAngleCosine > 0) {
                     float refractAngleCosine = sqrt(squaredRefractAngleCosine);
                     // Schlick's approximation for Fresnel term.
-                    float R0 = Utils::square((1 - refr) / (1 + refr));
+                    float R0 = Utils::square((refr - 1) / (refr + 1));
                     float outerAngleCosine = into ? incidentAngleCosine : refractAngleCosine;
                     float R = R0 + (1 - R0) * pow(1 - outerAngleCosine, 5);
                     // R represents the reflect rate.
                     if (Utils::randomEngine() <= R) {
                         // Reflection
                         ray.set(hitPoint, reflectDirection);
-                        continue;
                     } else {
                         // Refraction
-                        Vector3f refractDirection = ray.getDirection() / refr + hit.getNormal() * (incidentAngleCosine / refr - refractAngleCosine);
+                        Vector3f refractDirection = (ray.getDirection() / refr + hit.getNormal() * ((into ? 1 : -1) * (incidentAngleCosine / refr - refractAngleCosine))).normalized();
                         ray.set(hitPoint, refractDirection);
-                        continue;
                     }
                 } else { // Total reflection
                     ray.set(hitPoint, reflectDirection);
-                    continue;
                 }
             }
         }
@@ -222,8 +229,7 @@ public:
             // Ray tracing pass
 #pragma omp parallel for schedule(dynamic, 1)
             for (int x = 0; x < image.Width(); ++x) {
-                
-        fprintf(stderr, "\rRay tracing pass %.3lf%%", x * 100. / image.Width());
+                fprintf(stderr, "\rRay tracing pass %d%%", x * 100 / image.Width());
                 for (int y = 0; y < image.Height(); ++y) {
                     Pixel &pixel = image(x, y);
                     Ray ray = camera->generateDistributedRay(Vector2f(x, y));
@@ -231,15 +237,20 @@ public:
                     rayTrace(pixel, ray, accumulate);
                 }
             }
+            fprintf(stderr, "\rRay tracing pass 100%%\n");
             // Photon tracing pass
             kdtree.construct();
 #pragma omp parallel for schedule(dynamic, 1)
             for (int i = 0; i < numPhotons; ++i) {
+                if ((i & 0x3fff) == 0) {
+                    fprintf(stderr, "\rPhoton tracing pass %d%%", i * 100 / numPhotons);
+                }
                 Vector3f color;
                 Ray beam = generateBeam(color);
                 photonTrace(beam, color);
             }
             kdtree.destroy();
+            fprintf(stderr, "\rPhoton tracing pass 100%%\n");
             // Save checkpoint
             if (epoch % checkpoint == 0) {
                 generateImage(epoch, numPhotons);

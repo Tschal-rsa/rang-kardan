@@ -56,10 +56,10 @@ public:
 	Vector3f normal;
 	Vector3f vertices[3];
 	Vector3f konta, makria;
-protected:
-	Vector3f edges[2];
 	Vector2f textures[3];
 	Vector3f normals[3];
+protected:
+	Vector3f edges[2];
 	bool hasTexture, hasNormal;
 };
 
