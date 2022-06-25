@@ -5,6 +5,7 @@
 #include "object3d.hpp"
 #include "ray.hpp"
 #include "hit.hpp"
+#include "constant.hpp"
 #include <iostream>
 #include <vector>
 
@@ -14,9 +15,9 @@ class Group : public Object3D {
 
 public:
 
-    Group(): objects(0), illuminants(0), strongPhos(1000) {}
+    Group(): objects(0), illuminants(0) {}
 
-    explicit Group (int num_objects, float sp = 1000): objects(num_objects, nullptr), illuminants(0), strongPhos(sp) {}
+    explicit Group (int num_objects): objects(num_objects, nullptr), illuminants(0) {}
 
     ~Group() override {}
 
@@ -39,7 +40,7 @@ public:
 
     Ray generateBeam(Vector3f &color, int idx) {
         Object3D *illuminant = illuminants[idx];
-        color = illuminant->getMaterial()->getPhos() * strongPhos;
+        color = illuminant->getMaterial()->getPhos() * Constant::strongPhos;
         return illuminant->generateBeam();
     }
 
@@ -53,7 +54,6 @@ public:
 
 private:
     std::vector<Object3D*> objects, illuminants;
-    float strongPhos;
 };
 
 #endif

@@ -3,6 +3,7 @@
 
 #include "triangle.hpp"
 #include "utils.hpp"
+#include "constant.hpp"
 #include <algorithm>
 #include <vector>
 
@@ -57,7 +58,7 @@ protected:
             node->konta = Utils::min(node->konta, tria[i]->konta);
             node->makria = Utils::max(node->makria, tria[i]->makria);
         }
-        if (hi - lo < 6) {
+        if (hi - lo <= Constant::bvhmax) {
             node->lo = lo;
             node->hi = hi;
             return node;

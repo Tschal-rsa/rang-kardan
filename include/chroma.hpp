@@ -16,13 +16,14 @@
 #include "kdtree.hpp"
 #include "light.hpp"
 #include <omp.h>
+#include "constant.hpp"
 #include "utils.hpp"
 
 using namespace std;
 
 class Chroma {
 public:
-    Chroma(SceneParser &sceneParser, Image &image): kdtree(image), camera(sceneParser.getCamera()), backgroundColor(sceneParser.getBackgroundColor()), baseGroup(sceneParser.getGroup()), image(image), threshold(20), tmin(1e-3) {}
+    Chroma(SceneParser &sceneParser, Image &image): kdtree(image), camera(sceneParser.getCamera()), backgroundColor(sceneParser.getBackgroundColor()), baseGroup(sceneParser.getGroup()), image(image) {}
     Vector3f radiance(const Ray &r, int depth)
     {
         // float t;   // distance to intersection
@@ -93,7 +94,7 @@ public:
         delete[] c;
     }
     void photonTrace(Ray beam, Vector3f accumulate) {
-        for (int depth = 0; depth < threshold; ++depth) {
+        for (int depth = 0; depth < Constant::traceThreshold; ++depth) {
             if (depth > 5) {
                 float maxAccumulate = Utils::max(accumulate);
                 if (Utils::randomEngine() < maxAccumulate) {
@@ -103,7 +104,7 @@ public:
                 }
             }
             Hit hit;
-            if (!baseGroup->intersect(beam, hit, tmin)) {
+            if (!baseGroup->intersect(beam, hit, Constant::tmin)) {
                 return;
             }
             accumulate *= hit.getColor();
@@ -114,7 +115,7 @@ public:
             float erabu = Utils::randomEngine();
             float genkai = hit.getMaterial()->getDiffuse();
             if (erabu < genkai) {
-                kdtree.update(hitPoint, accumulate, beam.getDirection());
+                kdtree.update(hitPoint, accumulate);
                 Vector3f diffuseReflectDirection = Utils::sampleReflectedRay((into ? 1 : -1) * hit.getNormal());
                 beam.set(hitPoint, diffuseReflectDirection);
                 continue;
@@ -154,9 +155,9 @@ public:
         }
     }
     void rayTrace(Pixel &pixel, Ray ray, Vector3f accumulate) {
-        for (int depth = 0; depth < threshold; ++depth) {
+        for (int depth = 0; depth < Constant::traceThreshold; ++depth) {
             Hit hit;
-            if (!baseGroup->intersect(ray, hit, tmin)) {
+            if (!baseGroup->intersect(ray, hit, Constant::tmin)) {
                 pixel.phos += pixel.accumulate * backgroundColor;
                 return;
             }
@@ -274,8 +275,6 @@ protected:
     Vector3f backgroundColor;
     Group *baseGroup;
     Image &image;
-    int threshold;
-    float tmin;
 };
 
 #endif

@@ -3,6 +3,7 @@
 
 #include "image.hpp"
 #include "utils.hpp"
+#include "constant.hpp"
 #include <algorithm>
 #include <iostream>
 
@@ -19,7 +20,7 @@ public:
 
 class KDTree {
 public:
-    KDTree(Image &image): alpha(0.7), size(image.Width() * image.Height()) {
+    KDTree(Image &image): size(image.Width() * image.Height()) {
         pixels = new Pixel*[size];
         for (int i = 0; i < size; ++i) {
             pixels[i] = image(i);
@@ -32,8 +33,8 @@ public:
         destroy(root);
         root = nullptr;
     }
-    void update(const Vector3f &position, const Vector3f &accumulate, const Vector3f &beamDirection) {
-        update(root, position, accumulate, beamDirection);
+    void update(const Vector3f &position, const Vector3f &accumulate) {
+        update(root, position, accumulate);
     }
     ~KDTree() {
         if (root) {
@@ -87,7 +88,7 @@ protected:
         }
         delete node;
     }
-    void update(KDTreeNode *node, const Vector3f &position, const Vector3f &accumulate, const Vector3f &beamDirection) {
+    void update(KDTreeNode *node, const Vector3f &position, const Vector3f &accumulate) {
         if (!node) {
             return;
         }
@@ -101,18 +102,17 @@ protected:
         }
         if ((position - node->pixel->hitPoint).squaredLength() <= node->pixel->squaredRadius) {
             Pixel *pixel = node->pixel;
-            float shrink = (pixel->numPhotons * alpha + alpha) / (pixel->numPhotons * alpha + 1);
-            Vector3f reflectDirection(beamDirection - 2 * Vector3f::dot(beamDirection, pixel->normal) * pixel->normal);
+            float shrink = (pixel->numPhotons * Constant::sppmAlpha + Constant::sppmAlpha) / (pixel->numPhotons * Constant::sppmAlpha + 1);
             ++pixel->numPhotons;
             pixel->squaredRadius *= shrink;
             // cerr << shrink << "\t" << pixel->squaredRadius << endl;
             pixel->flux = (pixel->flux + pixel->accumulate * accumulate) * shrink;
         }
         if (node->lc) {
-            update(node->lc, position, accumulate, beamDirection);
+            update(node->lc, position, accumulate);
         }
         if (node->rc) {
-            update(node->rc, position, accumulate, beamDirection);
+            update(node->rc, position, accumulate);
         }
         node->maxSquaredRadius = node->pixel->squaredRadius;
         if (node->lc && node->maxSquaredRadius < node->lc->maxSquaredRadius) {
@@ -124,7 +124,6 @@ protected:
     }
     KDTreeNode *root;
     Pixel **pixels;
-    float alpha;
     int size;
 };
 

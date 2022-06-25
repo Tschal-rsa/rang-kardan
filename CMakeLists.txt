@@ -8,6 +8,7 @@ ENDIF()
 ADD_SUBDIRECTORY(deps/vecmath)
 
 SET(PA1_SOURCES
+        src/constant.cpp
         src/image.cpp
         src/main.cpp
         src/mesh.cpp
@@ -17,6 +18,7 @@ SET(PA1_INCLUDES
         include/bvh.hpp
         include/camera.hpp
         include/chroma.hpp
+        include/constant.hpp
         include/curve.hpp
         include/disk.hpp
         include/distribution.hpp
@@ -33,6 +35,8 @@ SET(PA1_INCLUDES
         include/revsurface.hpp
         include/scene_parser.hpp
         include/sphere.hpp
+        include/stb_image.h
+        include/texture.hpp
         include/transform.hpp
         include/triangle.hpp
         include/utils.hpp

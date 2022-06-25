@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <vecmath.h>
+#include "constant.hpp"
 
 typedef struct {
     Vector3f color;
@@ -12,7 +13,7 @@ typedef struct {
     Vector3f phos;
     Vector3f normal;
     int numPhotons;
-    float squaredRadius = 1e-2;
+    float squaredRadius = Constant::squaredRadius;
 } Pixel;
 
 // Simple image class
