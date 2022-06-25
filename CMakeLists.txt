@@ -14,7 +14,7 @@ SET(PA1_SOURCES
         src/scene_parser.cpp)
 
 SET(PA1_INCLUDES
-        include/bsp.hpp
+        include/bvh.hpp
         include/camera.hpp
         include/chroma.hpp
         include/curve.hpp

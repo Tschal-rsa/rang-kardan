@@ -82,12 +82,12 @@ Group {
         normal 0 -1 0
         offset -81.6
     }
-    MaterialIndex 5
+    MaterialIndex 4
     Transform {
         Translate 60 -10 78
         Scale 200 200 200
         TriangleMesh {
-            obj_file mesh/bunny_200.obj
+            obj_file mesh/bunny_1k_vn.obj
         }
     }
     MaterialIndex 6

@@ -9,13 +9,13 @@
 bool Mesh::intersect(const Ray &r, Hit &h, float tmin) {
 
     // Optional: Change this brute force method into a faster one.
-    bool result = false;
-    for (int triId = 0; triId < (int) patches.size(); ++triId) {
-        Triangle *tria = patches[triId];
-        result |= tria->intersect(r, h, tmin);
-    }
-    return result;
-    // return tree.intersect(r, h, tmin);
+    // bool result = false;
+    // for (int triId = 0; triId < (int) patches.size(); ++triId) {
+    //     Triangle *tria = patches[triId];
+    //     result |= tria->intersect(r, h, tmin);
+    // }
+    // return result;
+    return tree.intersect(r, h, tmin);
 }
 
 Mesh::Mesh(const char *filename, Material *material) : Object3D(material), patches(0), tree() {

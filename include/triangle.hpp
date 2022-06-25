@@ -53,6 +53,10 @@ public:
 		hit.set(t, material, hasNormal ? (s1 * normals[0] + s2 * normals[1] + s3 * normals[2]).normalized() : normal, material->getColor());
 		return true;
 	}
+
+	Vector3f getCenter() {
+		return (konta + makria) / 2;
+	}	
 	Vector3f normal;
 	Vector3f vertices[3];
 	Vector3f konta, makria;

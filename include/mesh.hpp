@@ -2,7 +2,7 @@
 #define MESH_H
 
 #include <vector>
-#include "bsp.hpp"
+#include "bvh.hpp"
 #include "object3d.hpp"
 #include "triangle.hpp"
 #include "utils.hpp"
@@ -28,7 +28,7 @@ public:
 
 private:
     std::vector<Triangle *> patches;
-    BSP tree;
+    BVH tree;
     // Normal can be used for light estimation
 };
 

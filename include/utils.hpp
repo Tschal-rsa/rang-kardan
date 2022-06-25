@@ -38,6 +38,9 @@ public:
         return Vector3f(relu(vec.x()), relu(vec.y()), relu(vec.z()));
     }
 
+    static float min(const Vector3f &f) {
+        return (f.x() < f.y() && f.x() < f.z()) ? f.x() : (f.y() < f.z() ? f.y() : f.z());
+    }
     static float max(const Vector3f &f) {
         return (f.x() > f.y() && f.x() > f.z()) ? f.x() : (f.y() > f.z() ? f.y() : f.z());
     }
