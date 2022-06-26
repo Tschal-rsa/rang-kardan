@@ -8,6 +8,7 @@ public:
     static const int russianRoulette;
     static const float tmin;
     static const int bvhmax;
+    static const int kdmax;
     static const float strongPhos;
     static const float squaredRadius;
 };

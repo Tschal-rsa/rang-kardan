@@ -46,7 +46,7 @@ public:
         return color;
     }
 
-    void set(float _t, Material *m, const Vector3f &n, const Vector3f &c = Vector3f::ZERO) {
+    void set(float _t, Material *m, const Vector3f &n, const Vector3f &c) {
         t = _t;
         material = m;
         normal = n;

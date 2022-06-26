@@ -85,7 +85,7 @@ public:
                             // Vector3f d = cx * (((sx + .5 + dx) / 2 + x) / w - .5) +
                             //         cy * (((sy + .5 + dy) / 2 + y) / h - .5) + cam.getDirection();
                             // r += radiance(Ray(cam.getOrigin() + d * 140, d.normalized()), 0);
-                            r += radiance(camera->generateAverageRay(Vector2f(x, y)), 0);
+                            r += radiance(camera->generateDistributedRay(Vector2f(x, y)), 0);
                         } // Camera rays are pushed ^^^^^ forward to start in interior
                         c[i] += Utils::clamp(r / samps);
                     }

@@ -32,7 +32,7 @@ public:
         for (int i = 0; i < size; ++i) {
             tria[i] = patches[i];
         }
-        root = construct(0, size, 0);
+        root = construct(0, size);
     }
     bool intersect(const Ray &ray, Hit &hit, float tmin) {
         return intersect(root, ray, hit, tmin);
@@ -52,7 +52,7 @@ protected:
     BVHNode *root;
     Triangle **tria;
     int size;
-    BVHNode* construct(int lo, int hi, int dim) {
+    BVHNode* construct(int lo, int hi) {
         BVHNode *node = new BVHNode;
         for (int i = lo; i < hi; ++i) {
             node->konta = Utils::min(node->konta, tria[i]->konta);
@@ -78,8 +78,8 @@ protected:
                 return a->getCenter().z() < b->getCenter().z();
             });
         }
-        node->lc = construct(lo, mi, (dim + 1) % 3);
-        node->rc = construct(mi, hi, (dim + 1) % 3);
+        node->lc = construct(lo, mi);
+        node->rc = construct(mi, hi);
         return node;
     }
     void destroy(BVHNode *node) {
@@ -97,10 +97,10 @@ protected:
         if (node->hi < 0) {
             isIntersect = intersect(node->lc, ray, hit, tmin) || isIntersect;
             isIntersect = intersect(node->rc, ray, hit, tmin) || isIntersect;
-            return isIntersect;
-        }
-        for (int i = node->lo; i < node->hi; ++i) {
-            isIntersect = tria[i]->intersect(ray, hit, tmin) || isIntersect;
+        } else {
+            for (int i = node->lo; i < node->hi; ++i) {
+                isIntersect = tria[i]->intersect(ray, hit, tmin) || isIntersect;
+            }
         }
         return isIntersect;
     }

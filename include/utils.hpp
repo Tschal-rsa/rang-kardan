@@ -23,6 +23,10 @@ public:
     static float randomEngine(float lo, float hi) {
         return lo + randomEngine() * (hi - lo);
     }
+    static float triangularDistribution() {
+        float r = randomEngine() * 2;
+        return r < 1 ? (sqrt(r) - 1) : (1 - sqrt(2 - r));
+    }
 
     static inline float clamp(float x) { 
         return x < 0 ? 0 : (x > 1 ? 1 : x);

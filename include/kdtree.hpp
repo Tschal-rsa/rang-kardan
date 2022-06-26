@@ -6,16 +6,17 @@
 #include "constant.hpp"
 #include <algorithm>
 #include <iostream>
+#include <mutex>
 
 using namespace std;
 
 class KDTreeNode {
 public:
     Vector3f konta, makria;
-    Pixel *pixel;
     KDTreeNode *lc, *rc;
+    int lo, hi;
     float maxSquaredRadius;
-    KDTreeNode(): konta(1e100), makria(-1e100), lc(nullptr), rc(nullptr), maxSquaredRadius(0) {}
+    KDTreeNode(): konta(1e100), makria(-1e100), lc(nullptr), rc(nullptr), lo(-1), hi(-1), maxSquaredRadius(0) {}
 };
 
 class KDTree {
@@ -27,9 +28,12 @@ public:
         }
     }
     void construct() {
-        root = construct(0, size - 1, 0);
+        root = construct(0, size);
     }
     void destroy() {
+        for (int i = 0; i < size; ++i) {
+            pixels[i]->update();
+        }
         destroy(root);
         root = nullptr;
     }
@@ -48,50 +52,45 @@ public:
         }
     }
 protected:
-    KDTreeNode* construct(int lo, int hi, int dim) {
+    KDTreeNode* construct(int lo, int hi) {
         KDTreeNode *node = new KDTreeNode;
-        for (int i = lo; i <= hi; ++i) {
+        for (int i = lo; i < hi; ++i) {
             node->konta = Utils::min(node->konta, pixels[i]->hitPoint);
             node->makria = Utils::max(node->makria, pixels[i]->hitPoint);
             node->maxSquaredRadius = node->maxSquaredRadius < pixels[i]->squaredRadius ? pixels[i]->squaredRadius : node->maxSquaredRadius;
         }
-        int mi = lo + hi >> 1;
-        switch (dim) {
-            case 0:
-                nth_element(pixels + lo, pixels + mi, pixels + (hi + 1), [](Pixel *a, Pixel *b) {
-                    return a->hitPoint.x() < b->hitPoint.x();
-                });
-                break;
-            case 1:
-                nth_element(pixels + lo, pixels + mi, pixels + (hi + 1), [](Pixel *a, Pixel *b) {
-                    return a->hitPoint.y() < b->hitPoint.y();
-                });
-                break;
-            default:
-                nth_element(pixels + lo, pixels + mi, pixels + (hi + 1), [](Pixel *a, Pixel *b) {
-                    return a->hitPoint.z() < b->hitPoint.z();
-                });
-                break;
+        if (hi - lo <= Constant::kdmax) {
+            node->lo = lo;
+            node->hi = hi;
+            return node;
         }
-        node->pixel = pixels[mi];
-        // cerr << node->pixel->hitPoint.x() << endl;
-        node->lc = lo < mi ? construct(lo, mi - 1, (dim + 1) % 3) : nullptr;
-        node->rc = mi < hi ? construct(mi + 1, hi, (dim + 1) % 3) : nullptr;
+        int mi = lo + hi >> 1;
+        Vector3f scale = node->makria - node->konta;
+        if (scale.x() > scale.y() && scale.x() > scale.z()) {
+            nth_element(pixels + lo, pixels + mi, pixels + hi, [](Pixel *a, Pixel *b) {
+                return a->hitPoint.x() < b->hitPoint.x();
+            });
+        } else if (scale.y() > scale.z()) {
+            nth_element(pixels + lo, pixels + mi, pixels + hi, [](Pixel *a, Pixel *b) {
+                return a->hitPoint.y() < b->hitPoint.y();
+            });
+        } else {
+            nth_element(pixels + lo, pixels + mi, pixels + hi, [](Pixel *a, Pixel *b) {
+                return a->hitPoint.z() < b->hitPoint.z();
+            });
+        }
+        node->lc = construct(lo, mi);
+        node->rc = construct(mi, hi);
         return node;
     }
     void destroy(KDTreeNode *node) {
-        if (node->lc) {
+        if (node->hi < 0) {
             destroy(node->lc);
-        }
-        if (node->rc) {
             destroy(node->rc);
         }
         delete node;
     }
     void update(KDTreeNode *node, const Vector3f &position, const Vector3f &accumulate) {
-        if (!node) {
-            return;
-        }
         Vector3f apoKonta(node->konta - position);
         Vector3f apoMakria(position - node->makria);
         // cerr << apoKonta.x() << "\t" << apoMakria.x() << endl;
@@ -100,30 +99,36 @@ protected:
         if (squaredDistance > node->maxSquaredRadius) {
             return;
         }
-        if ((position - node->pixel->hitPoint).squaredLength() <= node->pixel->squaredRadius) {
-            Pixel *pixel = node->pixel;
-            float shrink = (pixel->numPhotons * Constant::sppmAlpha + Constant::sppmAlpha) / (pixel->numPhotons * Constant::sppmAlpha + 1);
-            ++pixel->numPhotons;
-            pixel->squaredRadius *= shrink;
-            // cerr << shrink << "\t" << pixel->squaredRadius << endl;
-            pixel->flux = (pixel->flux + pixel->accumulate * accumulate) * shrink;
-        }
-        if (node->lc) {
+        if (node->hi < 0) {
             update(node->lc, position, accumulate);
-        }
-        if (node->rc) {
             update(node->rc, position, accumulate);
-        }
-        node->maxSquaredRadius = node->pixel->squaredRadius;
-        if (node->lc && node->maxSquaredRadius < node->lc->maxSquaredRadius) {
-            node->maxSquaredRadius = node->lc->maxSquaredRadius;
-        }
-        if (node->rc && node->maxSquaredRadius < node->rc->maxSquaredRadius) {
-            node->maxSquaredRadius = node->rc->maxSquaredRadius;
+        } else {
+            for (int i = node->lo; i < node->hi; ++i) {
+                if ((position - pixels[i]->hitPoint).squaredLength() <= pixels[i]->squaredRadius) {
+                    lock_guard<mutex> guard(kdlock);
+                    ++pixels[i]->incPhotons;
+                    if (isnan(pixels[i]->flux.x())) {
+                        cerr << "Flux NaN!" << endl;
+                        cerr << pixels[i]->flux.x() << " " << pixels[i]->flux.y() << " " << pixels[i]->flux.z() << endl;
+                    }
+                    pixels[i]->flux += pixels[i]->accumulate * accumulate;
+                    if (isnan(pixels[i]->flux.x())) {
+                        cerr << "Flux NaN again!" << endl;
+                        cerr << pixels[i]->accumulate.x() << " " << pixels[i]->accumulate.y() << " " << pixels[i]->accumulate.z() << endl;
+                        cerr << accumulate.x() << " " << accumulate.y() << " " << accumulate.z() << endl;
+                        cerr << pixels[i]->flux.x() << " " << pixels[i]->flux.y() << " " << pixels[i]->flux.z() << endl;
+                    }
+                    // float shrink = (pixels[i]->numPhotons + 1) * Constant::sppmAlpha / (pixels[i]->numPhotons * Constant::sppmAlpha + 1);
+                    // ++pixels[i]->numPhotons;
+                    // pixels[i]->squaredRadius *= shrink;
+                    // pixels[i]->flux = (pixels[i]->flux + pixels[i]->accumulate * accumulate) * shrink;
+                }
+            }
         }
     }
     KDTreeNode *root;
     Pixel **pixels;
+    mutex kdlock;
     int size;
 };
 

@@ -5,7 +5,8 @@
 #include <vecmath.h>
 #include "constant.hpp"
 
-typedef struct {
+class Pixel {
+public:
     Vector3f color;
     Vector3f hitPoint;
     Vector3f accumulate;
@@ -13,8 +14,21 @@ typedef struct {
     Vector3f phos;
     Vector3f normal;
     int numPhotons;
-    float squaredRadius = Constant::squaredRadius;
-} Pixel;
+    int incPhotons;
+    float squaredRadius;
+
+    Pixel(): color(0), hitPoint(0), accumulate(0), flux(0), phos(0), normal(0), numPhotons(0), incPhotons(0), squaredRadius(Constant::squaredRadius) {}
+
+    void update() {
+        float updPhotons = numPhotons + Constant::sppmAlpha * incPhotons;
+        int totPhotons = numPhotons + incPhotons;
+        float rate = totPhotons > 0 ? updPhotons / totPhotons : 1;
+        numPhotons = (int)(updPhotons + 0.5);
+        incPhotons = 0;
+        flux *= rate;
+        squaredRadius *= rate;
+    }
+};
 
 // Simple image class
 class Image {
