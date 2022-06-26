@@ -5,6 +5,7 @@ class Constant {
 public:
     static const float sppmAlpha;
     static const int traceThreshold;
+    static const int russianRoulette;
     static const float tmin;
     static const int bvhmax;
     static const float strongPhos;

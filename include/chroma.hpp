@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
+#include <ctime>
 #include <iostream>
 #include <string>
 
@@ -95,7 +96,7 @@ public:
     }
     void photonTrace(Ray beam, Vector3f accumulate) {
         for (int depth = 0; depth < Constant::traceThreshold; ++depth) {
-            if (depth > 5) {
+            if (depth > Constant::russianRoulette) {
                 float maxAccumulate = Utils::max(accumulate);
                 if (Utils::randomEngine() < maxAccumulate) {
                     accumulate *= (1 / maxAccumulate);
@@ -154,11 +155,13 @@ public:
             }
         }
     }
-    void rayTrace(Pixel &pixel, Ray ray, Vector3f accumulate) {
+    void rayTrace(Pixel &pixel, Ray ray) {
+        Vector3f accumulate(1);
         for (int depth = 0; depth < Constant::traceThreshold; ++depth) {
             Hit hit;
             if (!baseGroup->intersect(ray, hit, Constant::tmin)) {
                 pixel.phos += pixel.accumulate * backgroundColor;
+                pixel.hitPoint = ray.pointAtParameter(1e100);
                 return;
             }
             Vector3f hitPoint = ray.pointAtParameter(hit.getT());
@@ -225,6 +228,7 @@ public:
         return baseGroup->generateBeam(color, counter);
     }
     void render(int epochs, int numPhotons, int checkpoint) {
+        clock_t apocalypse = clock();
         for (int epoch = 1; epoch <= epochs; ++epoch) {
             fprintf(stderr, "Round %d/%d\n", epoch, epochs);
             // Ray tracing pass
@@ -234,8 +238,7 @@ public:
                 for (int y = 0; y < image.Height(); ++y) {
                     Pixel &pixel = image(x, y);
                     Ray ray = camera->generateDistributedRay(Vector2f(x, y));
-                    Vector3f accumulate(1);
-                    rayTrace(pixel, ray, accumulate);
+                    rayTrace(pixel, ray);
                 }
             }
             fprintf(stderr, "\rRay tracing pass 100%%\n");
@@ -258,6 +261,7 @@ public:
                 char filename[100];
                 sprintf(filename, "checkpoints/checkpoint-%d.bmp", epoch);
                 image.SaveBMP(filename);
+                fprintf(stderr, "Total time: %.3fs\n", float(clock() - apocalypse) / CLOCKS_PER_SEC);
             }
         }
         generateImage(epochs, numPhotons);
