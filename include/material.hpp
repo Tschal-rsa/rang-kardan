@@ -18,23 +18,29 @@ public:
     //         diffuseColor(d_color), specularColor(s_color), emissionColor(e_color), shininess(s) {
 
     // }
-    explicit Material(const Vector3f &color, const Vector3f &phos, const Properties &prop, Texture *texture = nullptr): color(color), phos(phos), prop(prop), texture(texture) {}
+    explicit Material(const Vector3f &color, const Vector3f &phos, const Properties &prop, Texture *texture = nullptr, Texture *normal = nullptr): color(color), phos(phos), prop(prop), texture(texture), normal(normal) {}
 
     virtual ~Material() = default;
 
     virtual Vector3f getDiffuseColor() const {
         return color;
     } // [TODO]
-    virtual bool hasTexture() {
-        return texture != nullptr;
-    }
-    virtual Vector3f getColor() const {
+    // bool hasTexture() {
+    //     return texture != nullptr;
+    // }
+    Vector3f getColor() {
         return color;
+    } // [TODO]
+    Vector3f getColor(float u, float v) {
+        return texture ? texture->getColor(u, v) : color;
     }
-    virtual Vector3f getColor(float u, float v) {
-        return texture->getColor(u, v);
+    bool hasNormal() {
+        return normal != nullptr;
     }
-    virtual Vector3f getPhos() const {
+    Vector3f getNormal(float u, float v) {
+        return (normal->getColor(u, v) * 2 - 1).normalized();
+    }
+    Vector3f getPhos() const {
         return phos;
     }
     float getDiffuse() const {
@@ -43,10 +49,10 @@ public:
     float getSpecular() const {
         return prop.specular;
     }
-    virtual float getRefract() const {
+    float getRefract() const {
         return prop.refract;
     }
-    virtual float getRefr() const {
+    float getRefr() const {
         return prop.refr;
     }
 
@@ -69,7 +75,7 @@ protected:
     // float shininess;
     Vector3f color, phos;
     Properties prop;
-    Texture *texture;
+    Texture *texture, *normal;
 };
 
 

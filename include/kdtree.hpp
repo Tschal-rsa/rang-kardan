@@ -107,17 +107,17 @@ protected:
                 if ((position - pixels[i]->hitPoint).squaredLength() <= pixels[i]->squaredRadius) {
                     lock_guard<mutex> guard(kdlock);
                     ++pixels[i]->incPhotons;
-                    if (isnan(pixels[i]->flux.x())) {
-                        cerr << "Flux NaN!" << endl;
-                        cerr << pixels[i]->flux.x() << " " << pixels[i]->flux.y() << " " << pixels[i]->flux.z() << endl;
-                    }
+                    // if (isnan(pixels[i]->flux.x())) {
+                    //     cerr << "Flux NaN!" << endl;
+                    //     cerr << pixels[i]->flux.x() << " " << pixels[i]->flux.y() << " " << pixels[i]->flux.z() << endl;
+                    // }
                     pixels[i]->flux += pixels[i]->accumulate * accumulate;
-                    if (isnan(pixels[i]->flux.x())) {
-                        cerr << "Flux NaN again!" << endl;
-                        cerr << pixels[i]->accumulate.x() << " " << pixels[i]->accumulate.y() << " " << pixels[i]->accumulate.z() << endl;
-                        cerr << accumulate.x() << " " << accumulate.y() << " " << accumulate.z() << endl;
-                        cerr << pixels[i]->flux.x() << " " << pixels[i]->flux.y() << " " << pixels[i]->flux.z() << endl;
-                    }
+                    // if (isnan(pixels[i]->flux.x())) {
+                    //     cerr << "Flux NaN again!" << endl;
+                    //     cerr << pixels[i]->accumulate.x() << " " << pixels[i]->accumulate.y() << " " << pixels[i]->accumulate.z() << endl;
+                    //     cerr << accumulate.x() << " " << accumulate.y() << " " << accumulate.z() << endl;
+                    //     cerr << pixels[i]->flux.x() << " " << pixels[i]->flux.y() << " " << pixels[i]->flux.z() << endl;
+                    // }
                     // float shrink = (pixels[i]->numPhotons + 1) * Constant::sppmAlpha / (pixels[i]->numPhotons * Constant::sppmAlpha + 1);
                     // ++pixels[i]->numPhotons;
                     // pixels[i]->squaredRadius *= shrink;

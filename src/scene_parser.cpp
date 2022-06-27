@@ -14,6 +14,7 @@
 #include "object3d.hpp"
 #include "group.hpp"
 #include "mesh.hpp"
+#include "revsurface.hpp"
 #include "sphere.hpp"
 #include "stb_image.h"
 #include "plane.hpp"
@@ -256,7 +257,7 @@ Material *SceneParser::parseMaterial() {
     filename[0] = 0;
     // Vector3f diffuseColor(1, 1, 1), specularColor(0, 0, 0), emissionColor(0, 0, 0);
     Vector3f color(1, 1, 1), phos(0, 0, 0);
-    Texture *texture = nullptr;
+    Texture *texture = nullptr, *normal = nullptr;
     char distribution[MAX_PARSER_TOKEN_LENGTH];
     Properties prop = {0};
     // float shininess = 0;
@@ -278,6 +279,11 @@ Material *SceneParser::parseMaterial() {
             int width, height, channel;
             unsigned char *img = stbi_load(filename, &width, &height, &channel, 0);
             texture = new Texture(width, height, channel, img);
+        } else if (strcmp(token, "normal") == 0) {
+            getToken(filename);
+            int width, height, channel;
+            unsigned char *img = stbi_load(filename, &width, &height, &channel, 0);
+            normal = new Texture(width, height, channel, img);
         } else if (strcmp(token, "prop") == 0) {
             getToken(distribution);
             prop = Distribution::getProperties(distribution);
@@ -287,7 +293,7 @@ Material *SceneParser::parseMaterial() {
         }
     }
     // auto *answer = new Material(diffuseColor, specularColor, emissionColor, shininess);
-    auto *answer = new Material(color, phos, prop, texture);
+    auto *answer = new Material(color, phos, prop, texture, normal);
     return answer;
 }
 
@@ -310,6 +316,12 @@ Object3D *SceneParser::parseObject(char token[MAX_PARSER_TOKEN_LENGTH]) {
         answer = (Object3D *) parseTriangleMesh();
     } else if (!strcmp(token, "Transform")) {
         answer = (Object3D *) parseTransform();
+    } else if (!strcmp(token, "BezierCurve")) {
+        answer = (Object3D *) parseBezierCurve();
+    } else if (!strcmp(token, "BsplineCurve")) {
+        answer = (Object3D *) parseBsplineCurve();
+    } else if (!strcmp(token, "RevSurface")) {
+        answer = (Object3D *) parseRevSurface();
     } else {
         printf("Unknown token in parseObject: '%s'\n", token);
         exit(0);
@@ -455,6 +467,77 @@ Mesh *SceneParser::parseTriangleMesh() {
     assert(!strcmp(ext, ".obj"));
     Mesh *answer = new Mesh(filename, current_material);
 
+    return answer;
+}
+
+Curve *SceneParser::parseBezierCurve() {
+    char token[MAX_PARSER_TOKEN_LENGTH];
+    getToken(token);
+    assert (!strcmp(token, "{"));
+    getToken(token);
+    assert (!strcmp(token, "controls"));
+    vector<Vector3f> controls;
+    while (true) {
+        getToken(token);
+        if (!strcmp(token, "[")) {
+            controls.push_back(readVector3f());
+            getToken(token);
+            assert (!strcmp(token, "]"));
+        } else if (!strcmp(token, "}")) {
+            break;
+        } else {
+            printf("Incorrect format for BezierCurve!\n");
+            exit(0);
+        }
+    }
+    Curve *answer = new BezierCurve(controls);
+    return answer;
+}
+
+
+Curve *SceneParser::parseBsplineCurve() {
+    char token[MAX_PARSER_TOKEN_LENGTH];
+    getToken(token);
+    assert (!strcmp(token, "{"));
+    getToken(token);
+    assert (!strcmp(token, "controls"));
+    vector<Vector3f> controls;
+    while (true) {
+        getToken(token);
+        if (!strcmp(token, "[")) {
+            controls.push_back(readVector3f());
+            getToken(token);
+            assert (!strcmp(token, "]"));
+        } else if (!strcmp(token, "}")) {
+            break;
+        } else {
+            printf("Incorrect format for BsplineCurve!\n");
+            exit(0);
+        }
+    }
+    Curve *answer = new BsplineCurve(controls);
+    return answer;
+}
+
+RevSurface *SceneParser::parseRevSurface() {
+    char token[MAX_PARSER_TOKEN_LENGTH];
+    getToken(token);
+    assert (!strcmp(token, "{"));
+    getToken(token);
+    assert (!strcmp(token, "profile"));
+    Curve* profile;
+    getToken(token);
+    if (!strcmp(token, "BezierCurve")) {
+        profile = parseBezierCurve();
+    } else if (!strcmp(token, "BsplineCurve")) {
+        profile = parseBsplineCurve();
+    } else {
+        printf("Unknown profile type in parseRevSurface: '%s'\n", token);
+        exit(0);
+    }
+    getToken(token);
+    assert (!strcmp(token, "}"));
+    auto *answer = new RevSurface(profile, current_material);
     return answer;
 }
 

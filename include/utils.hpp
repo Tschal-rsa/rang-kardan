@@ -63,7 +63,21 @@ public:
     }
 
     static Vector3f generateVertical(const Vector3f &vec) {
-        return vec.z() == 0 ? Vector3f::FORWARD : Vector3f(-vec.z() / vec.x(), 0, 1).normalized();
+        // return vec.z() == 0 ? Vector3f::FORWARD : Vector3f(-vec.z() / vec.x(), 0, 1).normalized();
+        Vector3f vertical(Vector3f::cross(Vector3f::RIGHT, vec));
+        if (vertical.squaredLength() < 1e-6) {
+            vertical = Vector3f::cross(Vector3f::UP, vec);
+        }
+        return vertical.normalized();
+    }
+
+    static Vector2f sampleUnitCircle() {
+        float x = randomEngine(-1, 1), y = randomEngine(-1, 1);
+        while (square(x) + square(y) > 1) {
+            x = randomEngine(-1, 1);
+            y = randomEngine(-1, 1);
+        }
+        return {x, y};
     }
 
     static Vector3f sampleReflectedRay(Vector3f w) {

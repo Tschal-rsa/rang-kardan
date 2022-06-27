@@ -7,7 +7,7 @@ using namespace std;
 
 class Texture {
 public:
-    Texture(int width, int height, int channel, unsigned char *img): image(width, height) {
+    Texture(int width, int height, int channel, unsigned char *img): image(width, height), width(width), height(height) {
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
                 int idx = (x + y * width) * channel;
@@ -19,20 +19,30 @@ public:
             }
         }
     }
+    Vector3f getPixel(int x, int y) {
+        x = x < 0 ? 0 : (x >= width ? (width - 1) : x);
+        y = y < 0 ? 0 : (y >= height ? (height - 1) : y);
+        return image.GetPixel(x, y);
+    }
     Vector3f getColor(float u, float v) {
-        u = u * (image.Width() - 1);
-        v = v * (image.Height() - 1);
+        // u -= int(u);
+        // v -= int(v);
+        // if (u < 0) u += 1;
+        // if (v < 0) v += 1;
+        u = u * width;
+        v = v * height;
         int x = u, y = v;
-        double alpha = u - x, beta = v - y;
+        float alpha = u - x, beta = v - y;
         Vector3f ret = Vector3f::ZERO;
-        ret += (1 - alpha) * (1 - beta) * image.GetPixel(x, y);
-        ret += alpha * (1 - beta) * image.GetPixel(x + 1, y);
-        ret += (1 - alpha) * beta * image.GetPixel(x, y + 1);
-        ret += alpha * beta * image.GetPixel(x + 1, y + 1);
+        ret += (1 - alpha) * (1 - beta) * getPixel(x, y);
+        ret += alpha * (1 - beta) * getPixel(x + 1, y);
+        ret += (1 - alpha) * beta * getPixel(x, y + 1);
+        ret += alpha * beta * getPixel(x + 1, y + 1);
         return ret;
     }
 protected:
     Image image;
+    int width, height;
 };
 
 #endif

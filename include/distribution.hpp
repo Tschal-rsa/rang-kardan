@@ -24,7 +24,8 @@ static map<string, Properties> nameToProperties = {
     {"Mirror",      {0, 1, 0, 0}},
     {"Glass",       {0, 0, 1, 1.65}},
     {"DiffLight",   {1, 0, 0, 0}},
-    {"Light",       {0, 1, 0, 0}}
+    {"Light",       {0, 1, 0, 0}},
+    {"China",       {0.7, 0.3, 0, 0}}
 };
 
 // class Distribution {

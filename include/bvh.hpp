@@ -15,11 +15,11 @@ public:
     BVHNode *lc, *rc;
     int lo, hi;
     BVHNode(): konta(1e100), makria(-1e100), lc(nullptr), rc(nullptr), lo(-1), hi(-1) {}
-    bool intersect(const Ray &ray) {
+    bool intersect(const Ray &ray, float tmax) {
         Vector3f origin = ray.getOrigin(), direction = ray.getDirection();
         Vector3f tKonta = (konta - origin) / direction, tMakria = (makria - origin) / direction;
         float tEnter = Utils::max(Utils::min(tKonta, tMakria)), tExit = Utils::min(Utils::max(tKonta, tMakria));
-        return tEnter < tExit && tExit >= 0;
+        return tEnter < tExit && tExit >= 0 && tEnter < tmax;
     }
 };
 
@@ -90,7 +90,7 @@ protected:
         delete node;
     }
     bool intersect(BVHNode *node, const Ray &ray, Hit &hit, float tmin) {
-        if (!node->intersect(ray)) {
+        if (!node->intersect(ray, hit.getT())) {
             return false;
         }
         bool isIntersect = false;

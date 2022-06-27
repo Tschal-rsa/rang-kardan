@@ -26,4 +26,7 @@ mkdir -p output
 # bin/PA1 testcases/scene09_smallpt.txt output/scene09.bmp
 # bin/PA1 testcases/scene10_bunny.txt output/scene10.bmp
 # bin/PA1 testcases/scene11_cube.txt output/scene11.bmp
-bin/PA1 testcases/scene12_dof.txt output/scene12.bmp
+# bin/PA1 testcases/scene12_dof.txt output/scene12.bmp
+bin/PA1 testcases/scene13_bump.txt output/scene13.bmp
+# bin/PA1 testcases/scene14_bezier.txt output/scene14.bmp
+# bin/PA1 testcases/scene15_bezier.txt output/scene15.bmp

@@ -22,6 +22,14 @@ public:
 
     ~Sphere() override = default;
 
+    Vector3f getNormal(const Vector3f &n, float u, float v) {
+        if (!material->hasNormal()) return n;
+        Vector3f normal = material->getNormal(u, v);
+        Vector3f tangent = Utils::generateVertical(n);
+        Vector3f binormal = Vector3f::cross(normal, tangent).normalized();
+        return tangent * normal.x() + binormal * normal.y() + n * normal.z();
+    }
+
     bool intersect(const Ray &r, Hit &h, float tmin) override {
         float rayDirectionLength = r.getDirection().length();
         Vector3f rayToCenter = center - r.getOrigin();
@@ -41,14 +49,10 @@ public:
         if (t > h.getT() || t < tmin) {
             return false;
         }
-        Vector3f normal = (r.pointAtParameter(t) - center) / radius;
-        if (material->hasTexture()) {
-            float u = atan2(normal.x(), normal.z()) / (2 * M_PI) + 0.5;
-            float v = -asin(normal.y()) / M_PI + 0.5;
-            h.set(t, material, normal, material->getColor(u, v));
-        } else {
-            h.set(t, material, normal, material->getColor());
-        }
+        Vector3f normal = (r.pointAtParameter(t) - center).normalized();
+        float u = atan2(normal.x(), normal.z()) / (2 * M_PI) + 0.5;
+        float v = -asin(normal.y()) / M_PI + 0.5;
+        h.set(t, material, getNormal(normal, u, v), material->getColor(u, v));
         return true;
     }
 

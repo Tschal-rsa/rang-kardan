@@ -303,6 +303,16 @@ Vector3f operator - ( const Vector3f& v )
     return Vector3f( -v[0], -v[1], -v[2] );
 }
 
+Vector3f operator + ( const Vector3f& v, float f )
+{
+    return Vector3f( v[0] + f, v[1] + f, v[2] + f );
+}
+
+Vector3f operator - ( const Vector3f& v, float f )
+{
+    return Vector3f( v[0] - f, v[1] - f, v[2] - f );
+}
+
 Vector3f operator * ( float f, const Vector3f& v )
 {
     return Vector3f( v[0] * f, v[1] * f, v[2] * f );
