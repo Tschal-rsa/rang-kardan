@@ -15,7 +15,7 @@ public:
 	Triangle() = delete;
 
     // a b c are three vertex positions of the triangle
-	Triangle( const Vector3f& a, const Vector3f& b, const Vector3f& c, Material* m) : Object3D(m), vertices{a, b, c}, edges{a - b, a - c}, konta(Utils::min(Utils::min(a, b), c)), makria(Utils::max(Utils::max(a, b), c)), hasTexture(false), hasNormal(false) {
+	Triangle( const Vector3f& a, const Vector3f& b, const Vector3f& c, Material* m) : Object3D(m, Utils::min(Utils::min(a, b), c), Utils::max(Utils::max(a, b), c)), vertices{a, b, c}, edges{a - b, a - c}, hasTexture(false), hasNormal(false) {
 		normal = Vector3f::cross(edges[0], edges[1]).normalized();
 	}
 
@@ -50,16 +50,28 @@ public:
 		float s1 = Vector3f::cross(pb, pc).length();
 		float s2 = Vector3f::cross(pc, pa).length();
 		float s3 = Vector3f::cross(pa, pb).length();
-		hit.set(t, material, hasNormal ? (s1 * normals[0] + s2 * normals[1] + s3 * normals[2]).normalized() : normal, material->getColor());
+		Vector2f uv(beta, gamma);
+		if (hasTexture) {
+			uv = (s1 * textures[0] + s2 * textures[1] + s3 * textures[2]) / (s1 + s2 + s3);
+		}
+		hit.set(t, material, hasNormal ? (s1 * normals[0] + s2 * normals[1] + s3 * normals[2]).normalized() : normal, material->getColor(uv.x(), 1 - uv.y()));
 		return true;
 	}
 
 	Vector3f getCenter() {
 		return (konta + makria) / 2;
-	}	
+	}
+
+	Ray generateBeam() const override {
+		float rb = Utils::randomEngine(), rc = Utils::randomEngine();
+		if (rb + rc > 1) {
+			rb = 1 - rb;
+			rc = 1 - rc;
+		}
+		return Ray((1 - rb - rc) * vertices[0] + rb * vertices[1] + rc * vertices[2], Utils::sampleReflectedRay(normal));
+	}
 	Vector3f normal;
 	Vector3f vertices[3];
-	Vector3f konta, makria;
 	Vector2f textures[3];
 	Vector3f normals[3];
 protected:

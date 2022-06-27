@@ -98,4 +98,5 @@ Mesh::Mesh(const char *filename, Material *material) : Object3D(material), patch
         patches.push_back(tria);
     }
     tree.construct(patches);
+    setBound(tree.getKonta(), tree.getMakria());
 }

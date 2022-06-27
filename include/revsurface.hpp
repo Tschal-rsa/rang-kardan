@@ -8,10 +8,9 @@
 class RevSurface : public Object3D {
 
     Curve *pCurve;
-    Vector3f konta, makria;
 
 public:
-    RevSurface(Curve *pCurve, Material* material) : pCurve(pCurve), Object3D(material), konta(-pCurve->maxRadius, pCurve->ymin, -pCurve->maxRadius), makria(pCurve->maxRadius, pCurve->ymax, pCurve->maxRadius) {
+    RevSurface(Curve *pCurve, Material* material) : pCurve(pCurve), Object3D(material, Vector3f(-pCurve->maxRadius, pCurve->ymin, -pCurve->maxRadius), Vector3f(pCurve->maxRadius, pCurve->ymax, pCurve->maxRadius)) {
         // Check flat.
         for (const auto &cp : pCurve->getControls()) {
             if (cp.z() != 0.0) {

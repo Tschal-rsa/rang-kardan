@@ -10,7 +10,7 @@ class Disk: public Object3D {
 public:
     Disk(): center(0), normal(-Vector3f::UP), radius(1), d(0) {}
 
-    Disk(const Vector3f &center, const Vector3f &normal, float radius, Material *material): Object3D(material), center(center), normal(normal), tangentAlpha(Utils::generateVertical(normal)), radius(radius), d(Vector3f::dot(center, normal)) {
+    Disk(const Vector3f &center, const Vector3f &normal, float radius, Material *material): Object3D(material, center - radius, center + radius), center(center), normal(normal), tangentAlpha(Utils::generateVertical(normal)), radius(radius), d(Vector3f::dot(center, normal)) {
         tangentBeta = Vector3f::cross(tangentAlpha, normal).normalized();
     }
 

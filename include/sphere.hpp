@@ -15,10 +15,7 @@ public:
         radius = 1;
     }
 
-    Sphere(const Vector3f &center, float radius, Material *material) : Object3D(material) {
-        this->center = center;
-        this->radius = radius;
-    }
+    Sphere(const Vector3f &center, float radius, Material *material) : Object3D(material, center - radius, center + radius), center(center), radius(radius) {}
 
     ~Sphere() override = default;
 

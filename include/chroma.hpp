@@ -24,7 +24,9 @@ using namespace std;
 
 class Chroma {
 public:
-    Chroma(SceneParser &sceneParser, Image &image): kdtree(image), camera(sceneParser.getCamera()), backgroundColor(sceneParser.getBackgroundColor()), baseGroup(sceneParser.getGroup()), image(image) {}
+    Chroma(SceneParser &sceneParser, Image &image): kdtree(image), camera(sceneParser.getCamera()), backgroundColor(sceneParser.getBackgroundColor()), baseGroup(sceneParser.getGroup()), image(image) {
+        baseGroup->activate();
+    }
     Vector3f radiance(const Ray &r, int depth)
     {
         // float t;   // distance to intersection
