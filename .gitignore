@@ -37,3 +37,6 @@ build/
 checkpoints/
 output/
 texture/
+
+# Temp files
+save.sh

@@ -299,3 +299,43 @@ void Image::SaveImage(const char * filename)
 		SaveTGA(filename);
 	}
 }
+
+void Image::readPixels(const char *filename) {
+    std::ifstream ifs(filename);
+    if (!ifs) {
+        fprintf(stderr, "Cannot open file: %s", filename);
+        exit(1);
+    }
+    char hasPhos;
+    for (int x = 0; x < width; ++x) {
+        for (int y = 0; y < height; ++y) {
+            Pixel &p = data[y * width + x];
+            ifs >> p.flux.x() >> p.flux.y() >> p.flux.z();
+            ifs >> hasPhos;
+            if (hasPhos == 'p') {
+                ifs >> p.phos.x() >> p.phos.y() >> p.phos.z();
+            }
+            ifs >> p.numPhotons;
+            ifs >> p.squaredRadius;
+        }
+    }
+    ifs.close();
+}
+
+void Image::SavePixels(const char *filename) {
+    std::ofstream ofs(filename, std::ios::trunc);
+    for (int x = 0; x < width; ++x) {
+        for (int y = 0; y < height; ++y) {
+            Pixel &p = data[y * width + x];
+            ofs << p.flux.x() << "\t" << p.flux.y() << "\t" << p.flux.z() << std::endl;
+            if (p.phos.squaredLength() > 0) {
+                ofs << "p\t" << p.phos.x() << "\t" << p.phos.y() << "\t" << p.phos.z() << std::endl;
+            } else {
+                ofs << "s" << std::endl;
+            }
+            ofs << p.numPhotons << std::endl;
+            ofs << p.squaredRadius << std::endl;
+        }
+    }
+    ofs.close();
+}

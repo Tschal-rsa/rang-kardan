@@ -1,0 +1,218 @@
+PerspectiveCamera {
+    center 98 20 45
+    direction -97 0 -10
+    up 0 1 0
+    angle 50
+    width 3840
+    height 2160
+    focus 217.6
+    aperture 0
+}
+
+Lights {
+    numLights 0
+}
+
+Background {
+    color 0 0 0 
+}
+
+Materials {
+    numMaterials 19
+    Material { 
+        color 0.75 0.25 0.25
+        prop Matte
+    }
+    Material { 
+        color 0.25 0.25 0.75 
+        prop Matte
+    }
+    Material { 
+        color 0.75 0.75 0.75 
+        prop Matte
+    }
+    Material { 
+        color 0 0 0
+        prop Matte
+    }
+    Material {
+        color 0.999 0.999 0.999
+        prop Mirror
+    }
+    Material {
+        color 0.25 0.75 0.25
+        prop Glass
+    }
+    Material {
+        color 0.999 0.999 0.999
+        emission 12 12 12
+        prop DiffLight
+    }
+    Material {
+        color 0.75 0.25 0.25
+        prop Glass
+    }
+    Material {
+        color 0.25 0.25 0.75
+        prop Glass
+    }
+    Material {
+        color 0.999 0.999 0.999
+        texture texture/R-C.jpg
+        prop Matte
+    }
+    Material {
+        color 0.999 0.999 0.999
+        texture texture/C-R.jpg
+        prop Matte
+    }
+    Material {
+        color 0.999 0.999 0.999
+        texture texture/wood4.jpg
+        prop Matte
+    }
+    Material {
+        color 0.999 0.999 0.999
+        prop Glass
+    }
+    Material {
+        color 0.75 0.75 0.25
+        prop Glass
+    }
+    Material {
+        color 0.999 0.999 0.999
+        prop Mirror
+    }
+    Material {
+        color 0.999 0.999 0.999
+        prop China
+        texture texture/vase.png
+    }
+    Material {
+        color 0.999 0.999 0.999
+        prop Matte
+        texture texture/wood.png
+    }
+    Material {
+        color 0.999 0.999 0.999
+        prop Matte
+        texture texture/forest.png
+    }
+    Material {
+        color 0.999 0.999 0.999
+        prop Matte
+        texture texture/desert.png
+    }
+}
+
+Group {
+    numObjects 20
+    MaterialIndex 0
+    Plane {
+        normal 1 0 0
+        offset 1
+    }
+    MaterialIndex 1
+    Plane {
+        normal -1 0 0
+        offset -99 
+    }
+    MaterialIndex 2
+    Plane {
+        normal 0 0 1
+        offset 0
+    }
+    MaterialIndex 2
+    Plane {
+        normal 0 0 -1
+        offset -300
+    }
+    MaterialIndex 2
+    Plane {
+        normal 0 1 0
+        offset 0
+    }
+    MaterialIndex 2
+    Plane {
+        normal 0 -1 0
+        offset -81.6
+    }
+    MaterialIndex 9
+    TriangleMesh {
+        obj_file mesh/PictureX.obj
+    }
+    MaterialIndex 10
+    TriangleMesh {
+        obj_file mesh/PictureY.obj
+    }
+    MaterialIndex 11
+    TriangleMesh {
+        obj_file mesh/PictureZ.obj
+    }
+    MaterialIndex 17
+    TriangleMesh {
+        obj_file mesh/PictureNX.obj
+    }
+    MaterialIndex 18
+    TriangleMesh {
+        obj_file mesh/PictureNY.obj
+    }
+    MaterialIndex 12
+    Transform {
+        Translate 40 0 60
+        Scale 12 12 12
+        YRotate -90
+        TriangleMesh {
+            obj_file mesh/dragon.obj
+        }
+    }
+    MaterialIndex 16
+    TriangleMesh {
+        obj_file mesh/table.obj
+    }
+    MaterialIndex 15
+    Transform {
+        Translate 11 17.9 10
+        Scale 4 4 4
+        RevSurface {
+            profile BezierCurve {
+                controls
+                    [ -1.5 3.5 0 ]
+                    [ -0.5 2 0 ]
+                    [ -2.5 0 0 ]
+                    [ -1.3 -2 0 ]
+            }
+        }
+    }
+    MaterialIndex 14
+    Sphere {
+        center 13 8 40
+        radius 8
+    }
+    MaterialIndex 13
+    Sphere {
+        center 25 5 25
+        radius 5
+    }
+    MaterialIndex 7
+    Sphere {
+        center 35 4 40
+        radius 4
+    }
+    MaterialIndex 5
+    Sphere {
+        center 45 3 30
+        radius 3
+    }
+    MaterialIndex 8
+    Sphere {
+        center 50 3 20
+        radius 3
+    }
+    MaterialIndex 6
+    Disk {
+    center 30 81.5999 40
+    normal 0 -1 0
+        radius 20
+    }
+}

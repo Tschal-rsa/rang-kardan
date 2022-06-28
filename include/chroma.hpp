@@ -213,6 +213,8 @@ public:
                 }
             }
         }
+        pixel.phos += pixel.accumulate * backgroundColor;
+        pixel.hitPoint = ray.pointAtParameter(1e100);
     }
     void generateImage(int epoch, int numPhotons) {
         for (int x = 0; x < image.Width(); ++x) {
@@ -229,9 +231,14 @@ public:
         counter = (counter + 1) % baseGroup->getIlluminantSize();
         return baseGroup->generateBeam(color, counter);
     }
-    void render(int epochs, int numPhotons, int checkpoint) {
+    void render(int epochs, int numPhotons, int checkpoint, bool savePixels = true, int lastEpoch = 0) {
         clock_t apocalypse = clock();
-        for (int epoch = 1; epoch <= epochs; ++epoch) {
+        if (lastEpoch > 0) {
+            char filename[100];
+            sprintf(filename, "checkpoints/checkpoint-%d.pxl", lastEpoch);
+            image.readPixels(filename);
+        }
+        for (int epoch = lastEpoch + 1; epoch <= epochs; ++epoch) {
             fprintf(stderr, "Round %d/%d\n", epoch, epochs);
             // Ray tracing pass
 #pragma omp parallel for schedule(dynamic, 1)
@@ -263,6 +270,10 @@ public:
                 char filename[100];
                 sprintf(filename, "checkpoints/checkpoint-%d.bmp", epoch);
                 image.SaveBMP(filename);
+                if (savePixels) {
+                    sprintf(filename, "checkpoints/checkpoint-%d.pxl", epoch);
+                    image.SavePixels(filename);
+                }
                 fprintf(stderr, "Total time: %.3fs\n", float(clock() - apocalypse) / CLOCKS_PER_SEC);
             }
         }

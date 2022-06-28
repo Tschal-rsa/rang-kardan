@@ -4,6 +4,7 @@
 #include <cassert>
 #include <vecmath.h>
 #include "constant.hpp"
+#include <fstream>
 
 class Pixel {
 public:
@@ -89,6 +90,10 @@ public:
     int SaveBMP(const char *filename);
 
     void SaveImage(const char *filename);
+
+    void readPixels(const char *filename);
+
+    void SavePixels(const char *filename);
 
 private:
 

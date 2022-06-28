@@ -20,7 +20,7 @@ public:
         Vector3f tKonta = (konta - origin) / direction, tMakria = (makria - origin) / direction;
         float tEnter = Utils::max(Utils::min(tKonta, tMakria));
         float tExit = Utils::min(Utils::max(tKonta, tMakria));
-        bool isIntersect = tEnter < tExit && tExit >= 0 && tEnter < tmax;
+        bool isIntersect = tEnter <= tExit && tExit >= 0 && tEnter < tmax;
         t = isIntersect ? tEnter : 1e100;
         return isIntersect;
     }

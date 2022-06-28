@@ -15,10 +15,13 @@ int main(int argc, char *argv[]) {
     string outputFile = argv[2];  // only bmp is allowed.
 
     SceneParser sceneParser(inputFile.c_str());
-    Image image(sceneParser.getCamera()->getWidth(), sceneParser.getCamera()->getHeight());
+    Image image(
+        sceneParser.getCamera()->getWidth(), 
+        sceneParser.getCamera()->getHeight()
+    );
     Chroma chroma(sceneParser, image);
-    chroma.render(10, 2000000, 1);
-    // chroma.render(2500, 200000, 50);
+    // chroma.render(10, 200000, 5, true, 5);
+    chroma.render(2500, 200000, 50, true, 0);
     // chroma.render();
     image.SaveBMP(outputFile.c_str());
     cout << "Hello! Computer Graphics!" << endl;

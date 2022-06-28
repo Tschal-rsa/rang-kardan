@@ -72,12 +72,12 @@ public:
     }
 
     static Vector2f sampleUnitCircle() {
-        float x = randomEngine(-1, 1), y = randomEngine(-1, 1);
-        while (square(x) + square(y) > 1) {
-            x = randomEngine(-1, 1);
-            y = randomEngine(-1, 1);
-        }
-        return {x, y};
+        float theta = randomEngine() * 2 * M_PI;
+        float r = sqrt(randomEngine());
+        return {
+            r * cos(theta),
+            r * sin(theta)
+        };
     }
 
     static Vector3f sampleReflectedRay(Vector3f w) {
