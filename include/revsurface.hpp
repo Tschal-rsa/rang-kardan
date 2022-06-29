@@ -24,6 +24,14 @@ public:
         delete pCurve;
     }
 
+    Vector3f getNormal(const Vector3f &n, float u, float v) {
+        if (!material->hasNormal()) return n.normalized();
+        Vector3f normal = material->getNormal(u, v);
+        Vector3f tangent = Utils::generateVertical(n);
+        Vector3f binormal = Vector3f::cross(normal, tangent).normalized();
+        return tangent * normal.x() + binormal * normal.y() + n * normal.z();
+    }
+
     bool intersect(const Ray &r, Hit &h, float tmin) override {
         // (PA2 optional TODO): implement this for the ray-tracing routine using G-N iteration.
         Vector3f origin = r.getOrigin(), direction = r.getDirection();
@@ -37,7 +45,9 @@ public:
             if (!methodNewton(r, tEnter, tau, theta, normal, point) || !isnormal(tEnter) || !isnormal(tau) || !isnormal(theta) || tEnter < tmin || tEnter >= h.getT() || tau < pCurve->lowerBound || tau > pCurve->upperBound) {
                 return false;
             }
-            h.set(tEnter, material, normal.normalized(), material->getColor(theta / (2 * M_PI), (tau - pCurve->lowerBound) / (pCurve->upperBound - pCurve->lowerBound)));
+            float u = theta / (2 * M_PI);
+            float v = (tau - pCurve->lowerBound) / (pCurve->upperBound - pCurve->lowerBound);
+            h.set(tEnter, material, getNormal(normal, u, v), material->getColor(u, v));
             return true;
         } else {
             return false;

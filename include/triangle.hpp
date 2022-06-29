@@ -33,6 +33,14 @@ public:
 		hasNormal = true;
 	}
 
+	Vector3f getNormal(const Vector3f &n, float u, float v) {
+        if (!material->hasNormal()) return n;
+        Vector3f normal = material->getNormal(u, v);
+        Vector3f tangent = Utils::generateVertical(n);
+        Vector3f binormal = Vector3f::cross(normal, tangent).normalized();
+        return tangent * normal.x() + binormal * normal.y() + n * normal.z();
+    }
+
 	bool intersect( const Ray& ray,  Hit& hit , float tmin) override {
         Vector3f s = vertices[0] - ray.getOrigin();
 		float denominator = Matrix3f(ray.getDirection(), edges[0], edges[1]).determinant();
@@ -54,7 +62,7 @@ public:
 		if (hasTexture) {
 			uv = (s1 * textures[0] + s2 * textures[1] + s3 * textures[2]) / (s1 + s2 + s3);
 		}
-		hit.set(t, material, hasNormal ? (s1 * normals[0] + s2 * normals[1] + s3 * normals[2]).normalized() : normal, material->getColor(uv.x(), 1 - uv.y()));
+		hit.set(t, material, hasNormal ? (s1 * normals[0] + s2 * normals[1] + s3 * normals[2]).normalized() : getNormal(normal, uv.x(), 1 - uv.y()), material->getColor(uv.x(), 1 - uv.y()));
 		return true;
 	}
 

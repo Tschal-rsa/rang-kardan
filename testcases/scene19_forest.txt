@@ -49,7 +49,7 @@ Materials {
         prop DiffLight
     }
     Material {
-        color 0.86 0.08 0.24
+        color 0.75 0.25 0.25
         prop Glass
     }
     Material {
