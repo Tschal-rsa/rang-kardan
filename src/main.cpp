@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     string inputFile = argv[1];
-    string outputFile = argv[2];  // only bmp is allowed.
+    string outputFile = argv[2];
 
     SceneParser sceneParser(inputFile.c_str());
     Image image(
@@ -20,10 +20,10 @@ int main(int argc, char *argv[]) {
         sceneParser.getCamera()->getHeight()
     );
     Chroma chroma(sceneParser, image);
-    // chroma.render(10, 200000, 5, true, 5);
-    chroma.render(2500, 200000, 50, true, 0);
+    chroma.render(10, 1, false, 0);
+    // chroma.render(2500, 100, true, 0);
     // chroma.render();
-    image.SaveBMP(outputFile.c_str());
+    image.SaveImage(outputFile.c_str());
     cout << "Hello! Computer Graphics!" << endl;
     return 0;
 }

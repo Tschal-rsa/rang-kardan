@@ -3,6 +3,7 @@
 
 #include <vecmath.h>
 #include "object3d.hpp"
+#include "constant.hpp"
 
 // transforms a 3D point using a matrix, returning a 3D point
 static Vector3f transformPoint(const Matrix4f &mat, const Vector3f &point) {
@@ -21,6 +22,23 @@ public:
 
     Transform(const Matrix4f &m, Object3D *obj) : o(obj) {
         transform = m.inverse();
+        Vector3f vertices[8] = {
+            Vector3f(o->konta.x() , o->konta.y() , o->konta.z() ),
+            Vector3f(o->konta.x() , o->konta.y() , o->makria.z()),
+            Vector3f(o->konta.x() , o->makria.y(), o->konta.z() ),
+            Vector3f(o->konta.x() , o->makria.y(), o->makria.z()),
+            Vector3f(o->makria.x(), o->konta.y() , o->konta.z() ),
+            Vector3f(o->makria.x(), o->konta.y() , o->makria.z()),
+            Vector3f(o->makria.x(), o->makria.y(), o->konta.z() ),
+            Vector3f(o->makria.x(), o->makria.y(), o->makria.z())
+        };
+        Vector3f konta(0), makria(0);
+        for (int i = 0; i < 8; ++i) {
+            Vector3f vertex = transformPoint(m, vertices[i]);
+            konta = Utils::min(konta, vertex);
+            makria = Utils::max(makria, vertex);
+        }
+        setBound(konta, makria);
     }
 
     ~Transform() {

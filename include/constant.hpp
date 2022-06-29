@@ -11,6 +11,7 @@ public:
     static const int kdmax;
     static const float strongPhos;
     static const float squaredRadius;
+    static const int numPhotons;
 };
 
 #endif

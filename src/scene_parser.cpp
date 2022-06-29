@@ -3,8 +3,6 @@
 #include <cstdlib>
 #include <cmath>
 
-#define STB_IMAGE_IMPLEMENTATION
-
 #include "scene_parser.hpp"
 #include "camera.hpp"
 #include "disk.hpp"
@@ -16,7 +14,6 @@
 #include "mesh.hpp"
 #include "revsurface.hpp"
 #include "sphere.hpp"
-#include "stb_image.h"
 #include "plane.hpp"
 #include "texture.hpp"
 #include "triangle.hpp"
@@ -276,14 +273,10 @@ Material *SceneParser::parseMaterial() {
         } else if (strcmp(token, "texture") == 0) {
             // Optional: read in texture and draw it.
             getToken(filename);
-            int width, height, channel;
-            unsigned char *img = stbi_load(filename, &width, &height, &channel, 0);
-            texture = new Texture(width, height, channel, img);
+            texture = new Texture(filename);
         } else if (strcmp(token, "normal") == 0) {
             getToken(filename);
-            int width, height, channel;
-            unsigned char *img = stbi_load(filename, &width, &height, &channel, 0);
-            normal = new Texture(width, height, channel, img);
+            normal = new Texture(filename);
         } else if (strcmp(token, "prop") == 0) {
             getToken(distribution);
             prop = Distribution::getProperties(distribution);

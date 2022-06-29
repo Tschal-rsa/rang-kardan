@@ -36,11 +36,8 @@ class Image {
 
 public:
 
-    Image(int w, int h) {
-        width = w;
-        height = h;
-        data = new Pixel[width * height];
-    }
+    Image(int w, int h);
+    Image(const char *filename);
 
     ~Image() {
         delete[] data;
@@ -88,6 +85,8 @@ public:
     void SaveTGA(const char *filename) const;
 
     int SaveBMP(const char *filename);
+
+    void SavePNG(const char *filename);
 
     void SaveImage(const char *filename);
 

@@ -2,7 +2,31 @@
 #include <cstdio>
 #include <cstring>
 
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+
 #include "image.hpp"
+#include "stb_image.h"
+#include "stb_image_write.h"
+
+Image::Image(int w, int h): width(w), height(h), data(new Pixel[w * h]) {}
+
+Image::Image(const char *filename) {
+    int channel;
+    unsigned char *img = stbi_load(filename, &width, &height, &channel, 0);
+    data = new Pixel[width * height];
+    for (int x = 0; x < width; ++x) {
+        for (int y = 0; y < height; ++y) {
+            int idx = (x + y * width) * channel;
+            SetPixel(x, y, Vector3f(
+                img[idx] / 255.0,
+                img[idx + 1] / 255.0,
+                img[idx + 2] / 255.0
+            ));
+        }
+    }
+    stbi_image_free(img);
+}
 
 // some helper functions for save & load
 
@@ -290,12 +314,30 @@ Image::SaveBMP(const char *filename)
     return(1);
 }
 
+void Image::SavePNG(const char *filename) {
+    int channel = 3;
+    unsigned char *img = new unsigned char[width * height * channel];
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            int idx = (y * width + x) * channel;
+            Vector3f color = GetPixel(x, height - y - 1);
+            img[idx] = ClampColorComponent(color.x());
+            img[idx + 1] = ClampColorComponent(color.y());
+            img[idx + 2] = ClampColorComponent(color.z());
+        }
+    }
+    stbi_write_png(filename, width, height, channel, img, 0);
+    delete[] img;
+}
+
 void Image::SaveImage(const char * filename)
 {
 	int len = strlen(filename);
-	if(strcmp(".bmp", filename+len-4)==0){
+	if(strcmp(".bmp", filename + len - 4) == 0){
 		SaveBMP(filename);
-	}else{
+	} else if (strcmp(".png", filename + len - 4) == 0) {
+        SavePNG(filename);
+    } else {
 		SaveTGA(filename);
 	}
 }

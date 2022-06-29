@@ -7,17 +7,9 @@ using namespace std;
 
 class Texture {
 public:
-    Texture(int width, int height, int channel, unsigned char *img): image(width, height), width(width), height(height) {
-        for (int x = 0; x < width; ++x) {
-            for (int y = 0; y < height; ++y) {
-                int idx = (x + y * width) * channel;
-                image.SetPixel(x, y, Vector3f(
-                    img[idx] / 255.0,
-                    img[idx + 1] / 255.0,
-                    img[idx + 2] / 255.0
-                ));
-            }
-        }
+    Texture(const char *filename): image(filename) {
+        width = image.Width();
+        height = image.Height();
     }
     Vector3f getPixel(int x, int y) {
         x = x < 0 ? 0 : (x >= width ? (width - 1) : x);

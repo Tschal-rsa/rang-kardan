@@ -92,7 +92,7 @@ Group {
             obj_file mesh/cube.obj
         }
     }
-    MaterialIndex 5
+    MaterialIndex 4
     Sphere {
     center 73 30 78
         radius 16.5

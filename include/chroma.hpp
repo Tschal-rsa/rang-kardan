@@ -216,11 +216,11 @@ public:
         pixel.phos += pixel.accumulate * backgroundColor;
         pixel.hitPoint = ray.pointAtParameter(1e100);
     }
-    void generateImage(int epoch, int numPhotons) {
+    void generateImage(int epoch) {
         for (int x = 0; x < image.Width(); ++x) {
             for (int y = 0; y < image.Height(); ++y) {
                 Pixel &pixel = image(x, y);
-                Vector3f color = (pixel.flux / (M_PI * pixel.squaredRadius * numPhotons) + pixel.phos) / epoch;
+                Vector3f color = (pixel.flux / (M_PI * pixel.squaredRadius * Constant::numPhotons) + pixel.phos) / epoch;
                 pixel.color = Utils::clamp(Utils::gammaCorrect(color));
             }
         }
@@ -231,7 +231,7 @@ public:
         counter = (counter + 1) % baseGroup->getIlluminantSize();
         return baseGroup->generateBeam(color, counter);
     }
-    void render(int epochs, int numPhotons, int checkpoint, bool savePixels = true, int lastEpoch = 0) {
+    void render(int epochs, int checkpoint, bool savePixels = true, int lastEpoch = 0) {
         clock_t apocalypse = clock();
         if (lastEpoch > 0) {
             char filename[100];
@@ -241,32 +241,30 @@ public:
         for (int epoch = lastEpoch + 1; epoch <= epochs; ++epoch) {
             fprintf(stderr, "Round %d/%d\n", epoch, epochs);
             // Ray tracing pass
+            fprintf(stderr, "\rRay tracing pass begin");
 #pragma omp parallel for schedule(dynamic, 1)
             for (int x = 0; x < image.Width(); ++x) {
-                fprintf(stderr, "\rRay tracing pass %d%%", x * 100 / image.Width());
                 for (int y = 0; y < image.Height(); ++y) {
                     Pixel &pixel = image(x, y);
                     Ray ray = camera->generateDistributedRay(Vector2f(x, y));
                     rayTrace(pixel, ray);
                 }
             }
-            fprintf(stderr, "\rRay tracing pass 100%%\n");
+            fprintf(stderr, "\rRay tracing pass finish\n");
             // Photon tracing pass
+            fprintf(stderr, "\rPhoton tracing pass begin");
             kdtree.construct();
 #pragma omp parallel for schedule(dynamic, 1)
-            for (int i = 0; i < numPhotons; ++i) {
-                if ((i & 0x3fff) == 0) {
-                    fprintf(stderr, "\rPhoton tracing pass %d%%", i * 100 / numPhotons);
-                }
+            for (int i = 0; i < Constant::numPhotons; ++i) {
                 Vector3f color;
                 Ray beam = generateBeam(color);
                 photonTrace(beam, color);
             }
             kdtree.destroy();
-            fprintf(stderr, "\rPhoton tracing pass 100%%\n");
+            fprintf(stderr, "\rPhoton tracing pass finish\n");
             // Save checkpoint
             if (epoch % checkpoint == 0) {
-                generateImage(epoch, numPhotons);
+                generateImage(epoch);
                 char filename[100];
                 sprintf(filename, "checkpoints/checkpoint-%d.bmp", epoch);
                 image.SaveBMP(filename);
@@ -277,7 +275,7 @@ public:
                 fprintf(stderr, "Total time: %.3fs\n", float(clock() - apocalypse) / CLOCKS_PER_SEC);
             }
         }
-        generateImage(epochs, numPhotons);
+        generateImage(epochs);
     }
     Image* getImage() {
         return &image;

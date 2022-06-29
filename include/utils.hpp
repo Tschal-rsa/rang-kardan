@@ -64,9 +64,9 @@ public:
 
     static Vector3f generateVertical(const Vector3f &vec) {
         // return vec.z() == 0 ? Vector3f::FORWARD : Vector3f(-vec.z() / vec.x(), 0, 1).normalized();
-        Vector3f vertical(Vector3f::cross(Vector3f::RIGHT, vec));
+        Vector3f vertical(Vector3f::cross(Vector3f::UP, vec));
         if (vertical.squaredLength() < 1e-6) {
-            vertical = Vector3f::cross(Vector3f::UP, vec);
+            vertical = Vector3f::cross(Vector3f::RIGHT, vec);
         }
         return vertical.normalized();
     }
