@@ -29,7 +29,7 @@ public:
         Vector3f normal = material->getNormal(u, v);
         Vector3f tangent = Utils::generateVertical(n);
         Vector3f binormal = Vector3f::cross(normal, tangent).normalized();
-        return tangent * normal.x() + binormal * normal.y() + n * normal.z();
+        return (tangent * normal.x() + binormal * normal.y() + n * normal.z()).normalized();
     }
 
     bool intersect(const Ray &r, Hit &h, float tmin) override {

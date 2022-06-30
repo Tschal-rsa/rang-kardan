@@ -11,15 +11,9 @@ class Ray {
 public:
 
     Ray() = delete;
-    Ray(const Vector3f &orig, const Vector3f &dir) {
-        origin = orig;
-        direction = dir;
-    }
+    Ray(const Vector3f &orig, const Vector3f &dir, float t = 0): origin(orig), direction(dir), time(t) {}
 
-    Ray(const Ray &r) {
-        origin = r.origin;
-        direction = r.direction;
-    }
+    Ray(const Ray &r): origin(r.origin), direction(r.direction), time(r.time) {}
 
     const Vector3f &getOrigin() const {
         return origin;
@@ -27,6 +21,10 @@ public:
 
     const Vector3f &getDirection() const {
         return direction;
+    }
+
+    float getTime() const {
+        return time;
     }
 
     Vector3f pointAtParameter(float t) const {
@@ -42,6 +40,7 @@ private:
 
     Vector3f origin;
     Vector3f direction;
+    float time;
 
 };
 

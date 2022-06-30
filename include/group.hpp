@@ -15,9 +15,9 @@ class Group : public Object3D {
 
 public:
 
-    Group(): objects(0), illuminants(0), tree() {}
+    Group(): objects(0), illuminants(0), tree(), tStart(0), tEnd(0) {}
 
-    explicit Group (int num_objects): objects(0), illuminants(0), tree() {}
+    explicit Group (int num_objects, float tStart = 0, float tEnd = 0): objects(0), illuminants(0), tree(), tStart(tStart), tEnd(tEnd) {}
 
     ~Group() override {}
 
@@ -51,7 +51,7 @@ public:
     Ray generateBeam(Vector3f &color, int idx) {
         Object3D *illuminant = illuminants[idx];
         color = illuminant->getMaterial()->getPhos() * Constant::strongPhos;
-        return illuminant->generateBeam();
+        return illuminant->generateBeam(Utils::randomEngine(tStart, tEnd));
     }
 
     int getGroupSize() {
@@ -65,6 +65,7 @@ public:
 private:
     std::vector<Object3D*> objects, illuminants, uncensored;
     BVH tree;
+    float tStart, tEnd;
 };
 
 #endif

@@ -38,7 +38,7 @@ public:
         Vector3f normal = material->getNormal(u, v);
         Vector3f tangent = Utils::generateVertical(n);
         Vector3f binormal = Vector3f::cross(normal, tangent).normalized();
-        return tangent * normal.x() + binormal * normal.y() + n * normal.z();
+        return (tangent * normal.x() + binormal * normal.y() + n * normal.z()).normalized();
     }
 
 	bool intersect( const Ray& ray,  Hit& hit , float tmin) override {
@@ -70,13 +70,13 @@ public:
 		return (konta + makria) / 2;
 	}
 
-	Ray generateBeam() const override {
+	Ray generateBeam(float time = 0) const override {
 		float rb = Utils::randomEngine(), rc = Utils::randomEngine();
 		if (rb + rc > 1) {
 			rb = 1 - rb;
 			rc = 1 - rc;
 		}
-		return Ray((1 - rb - rc) * vertices[0] + rb * vertices[1] + rc * vertices[2], Utils::sampleReflectedRay(normal));
+		return Ray((1 - rb - rc) * vertices[0] + rb * vertices[1] + rc * vertices[2], Utils::sampleReflectedRay(normal), time);
 	}
 	Vector3f normal;
 	Vector3f vertices[3];

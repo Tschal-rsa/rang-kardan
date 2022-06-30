@@ -28,14 +28,15 @@ public:
         h.set(t, material, dotProduct < 0 ? normal : -normal, material->getColor());
         return true;
     }
-    Ray generateBeam() const override {
+    Ray generateBeam(float time = 0) const override {
         // float theta = Utils::randomEngine(0, 2 * M_PI);
         // Vector3f rotated(tangentAlpha * cos(theta) + Vector3f::cross(normal, tangentAlpha * sin(theta)) + Vector3f::dot(normal, tangentAlpha) * normal * (1 - cos(theta)));
         // return Ray(center + rotated * Utils::randomEngine(0, radius), Utils::sampleReflectedRay(normal));
         Vector2f coord = Utils::sampleUnitCircle() * radius;
         return Ray(
             center + tangentAlpha * coord.x() + tangentBeta * coord.y(), 
-            Utils::sampleReflectedRay(normal)
+            Utils::sampleReflectedRay(normal),
+            time
         );
     }
 protected:

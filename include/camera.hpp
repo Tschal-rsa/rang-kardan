@@ -45,7 +45,7 @@ class PerspectiveCamera : public Camera {
 
 public:
     PerspectiveCamera(const Vector3f &center, const Vector3f &direction,
-            const Vector3f &up, int imgW, int imgH, float angle, float disToFocalPlane = 1, float apertureRadius = 0) : Camera(center, direction, up, imgW, imgH), disToFocalPlane(disToFocalPlane), apertureRadius(apertureRadius) {
+            const Vector3f &up, int imgW, int imgH, float angle, float disToFocalPlane = 1, float apertureRadius = 0, float tStart = 0, float tEnd = 0) : Camera(center, direction, up, imgW, imgH), disToFocalPlane(disToFocalPlane), apertureRadius(apertureRadius), tStart(tStart), tEnd(tEnd) {
         // angle is in radian.
         // halfLengthX = tan(angleX / 2);
         // halfLengthY = tan(angleY / 2);
@@ -60,7 +60,7 @@ public:
     Ray generateRay(const Vector2f &point) override {
         // add depth of field
         float sampleX = Utils::randomEngine(-1, 1) * apertureRadius, sampleY = Utils::randomEngine(-1, 1) * apertureRadius;
-        return Ray(center + horizontal * sampleX - up * sampleY, rotate * Vector3f((point.x() * pixelX - halfLengthX) * disToFocalPlane - sampleX, (halfLengthY - point.y() * pixelY) * disToFocalPlane - sampleY, disToFocalPlane).normalized());
+        return Ray(center + horizontal * sampleX - up * sampleY, rotate * Vector3f((point.x() * pixelX - halfLengthX) * disToFocalPlane - sampleX, (halfLengthY - point.y() * pixelY) * disToFocalPlane - sampleY, disToFocalPlane).normalized(), Utils::randomEngine(tStart, tEnd));
     }
 
     Ray generateAverageRay(const Vector2f &point) override {
@@ -78,6 +78,7 @@ protected:
     float halfLengthX, halfLengthY, pixelX, pixelY;
     float disToFocalPlane, apertureRadius;
     Matrix3f rotate;
+    float tStart, tEnd;
 };
 
 #endif //CAMERA_H

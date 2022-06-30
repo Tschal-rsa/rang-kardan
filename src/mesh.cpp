@@ -100,3 +100,8 @@ Mesh::Mesh(const char *filename, Material *material) : Object3D(material), patch
     tree.construct(patches);
     setBound(tree.getKonta(), tree.getMakria());
 }
+
+Ray Mesh::generateBeam(float time) const {
+    int which = Utils::randomEngine() * patches.size();
+    return patches[which]->generateBeam(time);
+}

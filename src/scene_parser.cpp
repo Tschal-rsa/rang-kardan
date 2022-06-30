@@ -24,6 +24,9 @@
 SceneParser::SceneParser(const char *filename) {
 
     // initialize some reasonable default values
+    tStart = 0;
+    tEnd = 0;
+
     group = nullptr;
     camera = nullptr;
     background_color = Vector3f(0.5, 0.5, 0.5);
@@ -137,8 +140,16 @@ void SceneParser::parsePerspectiveCamera() {
         apertureRadius = readFloat();
         getToken(token);
     }
+    if (!strcmp(token, "tStart")) {
+        tStart = readFloat();
+        getToken(token);
+    }
+    if (!strcmp(token, "tEnd")) {
+        tEnd = readFloat();
+        getToken(token);
+    }
     assert (!strcmp(token, "}"));
-    camera = new PerspectiveCamera(center, direction, up, width, height, angle_radians, disToFocalPlane, apertureRadius);
+    camera = new PerspectiveCamera(center, direction, up, width, height, angle_radians, disToFocalPlane, apertureRadius, tStart, tEnd);
 }
 
 void SceneParser::parseBackground() {
@@ -299,6 +310,8 @@ Object3D *SceneParser::parseObject(char token[MAX_PARSER_TOKEN_LENGTH]) {
         answer = (Object3D *) parseGroup();
     } else if (!strcmp(token, "Sphere")) {
         answer = (Object3D *) parseSphere();
+    } else if (!strcmp(token, "MotionSphere")) {
+        answer = (Object3D *) parseMotionSphere();
     } else if (!strcmp(token, "Plane")) {
         answer = (Object3D *) parsePlane();
     } else if (!strcmp(token, "Disk")) {
@@ -343,7 +356,7 @@ Group *SceneParser::parseGroup() {
     assert (!strcmp(token, "numObjects"));
     int num_objects = readInt();
 
-    auto *answer = new Group(num_objects);
+    auto *answer = new Group(num_objects, tStart, tEnd);
 
     // read in the objects
     int count = 0;
@@ -386,6 +399,31 @@ Sphere *SceneParser::parseSphere() {
     assert (!strcmp(token, "}"));
     assert (current_material != nullptr);
     return new Sphere(center, radius, current_material);
+}
+
+MotionSphere *SceneParser::parseMotionSphere() {
+    char token[MAX_PARSER_TOKEN_LENGTH];
+    getToken(token);
+    assert (!strcmp(token, "{"));
+    getToken(token);
+    assert (!strcmp(token, "origCenter"));
+    Vector3f origCenter = readVector3f();
+    getToken(token);
+    assert (!strcmp(token, "center"));
+    Vector3f center = readVector3f();
+    getToken(token);
+    assert (!strcmp(token, "radius"));
+    float radius = readFloat();
+    getToken(token);
+    assert (!strcmp(token, "tStart"));
+    float t_start = readFloat();
+    getToken(token);
+    assert (!strcmp(token, "tEnd"));
+    float t_end = readFloat();
+    getToken(token);
+    assert (!strcmp(token, "}"));
+    assert (current_material != nullptr);
+    return new MotionSphere(origCenter, center, radius, current_material, t_start, t_end);
 }
 
 

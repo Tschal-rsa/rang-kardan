@@ -26,6 +26,8 @@ public:
 
     bool intersect(const Ray &r, Hit &h, float tmin) override;
 
+    Ray generateBeam(float time = 0) const override;
+
 private:
     std::vector<Triangle *> patches;
     BVH tree;

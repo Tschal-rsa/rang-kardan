@@ -10,6 +10,7 @@ class Material;
 class Object3D;
 class Group;
 class Sphere;
+class MotionSphere;
 class Plane;
 class Disk;
 class Triangle;
@@ -71,6 +72,7 @@ private:
     Object3D *parseObject(char token[MAX_PARSER_TOKEN_LENGTH]);
     Group *parseGroup();
     Sphere *parseSphere();
+    MotionSphere *parseMotionSphere();
     Plane *parsePlane();
     Disk *parseDisk();
     Triangle *parseTriangle();
@@ -96,6 +98,8 @@ private:
     Material **materials;
     Material *current_material;
     Group *group;
+
+    float tStart, tEnd;
 };
 
 #endif // SCENE_PARSER_H
