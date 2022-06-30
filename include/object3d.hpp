@@ -42,7 +42,7 @@ public:
 
     virtual Ray generateBeam(float time = 0) const {
         return Ray(Vector3f::ZERO, Vector3f::ZERO);
-    } // [TODO] Change it to =0
+    }
 protected:
     bool isBounded;
 

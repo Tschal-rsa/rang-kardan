@@ -24,13 +24,10 @@ public:
 
     virtual Vector3f getDiffuseColor() const {
         return color;
-    } // [TODO]
-    // bool hasTexture() {
-    //     return texture != nullptr;
-    // }
+    }
     Vector3f getColor() {
         return color;
-    } // [TODO]
+    }
     Vector3f getColor(float u, float v) {
         return texture ? texture->getColor(u, v) : color;
     }
@@ -66,7 +63,7 @@ public:
     // }
     Vector3f Shade(const Ray &ray, const Hit &hit, const Vector3f &dirToLight, const Vector3f &lightColor) {
         return Vector3f::ZERO;
-    } // [TODO]
+    }
 
 protected:
     // Vector3f diffuseColor;
