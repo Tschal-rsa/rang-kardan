@@ -9,3 +9,4 @@ const int Constant::kdmax = 5;
 const float Constant::strongPhos = 1000;
 const float Constant::squaredRadius = 1e-1;
 const int Constant::numPhotons = 200000;
+const float Constant::tangentScale = 5;

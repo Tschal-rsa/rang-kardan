@@ -12,6 +12,7 @@ public:
     static const float strongPhos;
     static const float squaredRadius;
     static const int numPhotons;
+    static const float tangentScale;
 };
 
 #endif

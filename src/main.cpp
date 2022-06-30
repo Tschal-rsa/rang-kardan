@@ -20,8 +20,8 @@ int main(int argc, char *argv[]) {
         sceneParser.getCamera()->getHeight()
     );
     Chroma chroma(sceneParser, image);
-    chroma.render(10, 1, false, 0);
-    // chroma.render(2500, 50, true, 0);
+    // chroma.render(10, 1, false, 0);
+    chroma.render(2000, 50, true, 0);
     // chroma.render();
     image.SaveImage(outputFile.c_str());
     cout << "Hello! Computer Graphics!" << endl;

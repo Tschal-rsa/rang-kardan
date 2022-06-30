@@ -1,0 +1,114 @@
+PerspectiveCamera {
+    center 50 40.8 295.6
+    direction 0 0 -1
+    up 0 1 0
+    angle 30
+    width 1024
+    height 768
+    focus 217.6
+    aperture 0
+}
+
+Lights {
+    numLights 0
+}
+
+Background {
+    color 0 0 0 
+}
+
+Materials {
+    numMaterials 7
+    Material { 
+        color 0.75 0.25 0.25
+        prop Matte
+    }
+    Material { 
+        color 0.25 0.25 0.75 
+        prop Matte
+    }
+    Material { 
+        color 0.75 0.75 0.75 
+        prop Matte
+    }
+    Material { 
+        color 0 0 0
+        prop Matte
+    }
+    Material {
+        color 0.999 0.999 0.999
+        prop Cobble
+        texture texture/cobble.jpg
+    }
+    Material {
+        color 0.999 0.999 0.999
+        prop Cobble
+        texture texture/cobble.jpg
+        normal texture/cobble_normal.jpg
+    }
+    Material {
+        color 0.999 0.999 0.999
+        emission 18 18 18
+        prop DiffLight
+    }
+}
+
+Group {
+    numObjects 9
+    MaterialIndex 0
+    Plane {
+        normal 1 0 0
+        offset 1
+    }
+    MaterialIndex 1
+    Plane {
+        normal -1 0 0
+        offset -99 
+    }
+    MaterialIndex 2
+    Plane {
+        normal 0 0 1
+        offset 0
+    }
+    MaterialIndex 3
+    Plane {
+        normal 0 0 -1
+        offset -300
+    }
+    MaterialIndex 2
+    Plane {
+        normal 0 1 0
+        offset 0
+    }
+    MaterialIndex 2
+    Plane {
+        normal 0 -1 0
+        offset -81.6
+    }
+    MaterialIndex 4
+    Transform {
+        Translate 27 30 78
+        Scale 12 12 12
+        XRotate 45
+        YRotate 45
+        TriangleMesh {
+            obj_file mesh/cube.obj
+        }
+    }
+    MaterialIndex 5
+    Transform {
+        Translate 73 30 78
+        Scale 12 12 12
+        XRotate 45
+        YRotate 45
+        TriangleMesh {
+            obj_file mesh/cube.obj
+        }
+    }
+    MaterialIndex 6
+    Disk {
+    center 50 81.5999 81.6 
+    normal 0 -1 0
+        radius 20
+    }
+}

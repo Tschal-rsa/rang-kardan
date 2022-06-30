@@ -34,4 +34,4 @@ mkdir -p output
 # bin/PA1 testcases/scene18_sophie.txt output/scene18.png
 # bin/PA1 testcases/scene19_forest.txt output/scene19.png
 # bin/PA1 testcases/scene20_blur.txt output/scene20.png
-bin/PA1 testcases/scene21_normal.txt output/scene21.png
+bin/PA1 testcases/scene23_normal.txt output/scene23.png
